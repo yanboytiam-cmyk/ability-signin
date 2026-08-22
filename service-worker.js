@@ -9,7 +9,7 @@
  * Submissions are never touched here. They are POSTs, the browser does not
  * cache them, and the page keeps its own retry queue in localStorage.
  */
-var VERSION = "aes-signin-v2";
+var VERSION = "aes-signin-v3";
 var SHELL = [
   "./",
   "./index.html",
@@ -55,7 +55,11 @@ self.addEventListener("fetch", function(ev){
 
   if (isPage){
     ev.respondWith(
-      fetch(req).then(function(res){
+      // no-store, not a plain fetch: GitHub Pages serves the HTML with a
+      // max-age, so a plain fetch is answered from the browser's own HTTP
+      // cache and a redeployed fix would sit unseen on the clinic tablet for
+      // as long as that header says. Network-first has to mean the network.
+      fetch(req.url, {cache: "no-store", credentials: "same-origin"}).then(function(res){
         var copy = res.clone();
         caches.open(VERSION).then(function(c){ c.put(req, copy); });
         return res;
