@@ -567,6 +567,15 @@
   var STAFF_KEY = "aes_staff";
   var QUEUE_KEY = "aes_pending";
   var SNOOZE_KEY = "aes_install_snoozed";
+  var GEO_KEY = "aes_geo_ok";
+
+  /* Declared up here because the location code needs them, not just the
+     install banner: the directions out of a permission problem are different
+     on an iPhone and on Android, and different again once the app is installed. */
+  var isStandalone = window.matchMedia("(display-mode: standalone)").matches
+    || window.navigator.standalone === true;
+  var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent)
+    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
   var $ = function(id){ return document.getElementById(id); };
   function pad2(n){ return (n<10?"0":"") + n; }
@@ -689,8 +698,11 @@
     });
   }
 
-  /* One fix. done(true) or done(false, reasonCode). */
-  function fix(done){
+  /* One fix. done(true) or done(false, reasonCode).
+     maxAge lets the fix taken a moment ago be reused instead of waking the GPS
+     again: at signing, a position under half a minute old is still the position
+     the record is about, and the worker is not left waiting. */
+  function fix(done, maxAge){
     if (!navigator.geolocation) return done(false, "unsupported");
     navigator.geolocation.getCurrentPosition(function(pos){
       LOC.lat = pos.coords.latitude;
@@ -700,39 +712,80 @@
                   + LOC.lat.toFixed(6) + "," + LOC.lon.toFixed(6);
       LOC.at = new Date().toISOString();
       LOC.ok = true;
+      // Remember that it worked once, so the next launch knows the permission
+      // is already given and never asks a second time for nothing.
+      try { localStorage.setItem(GEO_KEY, "1"); } catch(e){}
       done(true);
     }, function(err){
       LOC.ok = false;
       done(false, err && err.code === 1 ? "denied"
                 : err && err.code === 3 ? "timeout" : "unavailable");
-    }, { enableHighAccuracy:true, timeout:GEO_TIMEOUT, maximumAge:0 });
+    }, { enableHighAccuracy:true, timeout:GEO_TIMEOUT,
+         maximumAge: (typeof maxAge === "number") ? maxAge : 0 });
+  }
+
+  /* No page on the web can open the phone's Settings. The App-Prefs: scheme is
+     private API and Safari has refused it for years, and Android has no
+     equivalent from a web page either. A button claiming to do it would simply
+     do nothing, so the next best thing is exact directions, and the two
+     switches that can be at fault are named separately: the phone's Location
+     Services, and the permission given to this app. */
+  function iosSteps(code){
+    var where = isStandalone
+      ? "<li>Scroll to <strong>Ability Visit</strong> in the list and tap it.</li>"
+        + "<li>Choose <strong>While Using the App</strong>.</li>"
+      : "<li>Scroll to <strong>Safari Websites</strong> and tap it.</li>"
+        + "<li>Choose <strong>While Using the App</strong>.</li>";
+    if (code === "denied"){
+      return "<p><strong>Permission for this app</strong></p><ol>"
+        + "<li>Open <strong>Settings</strong> on your iPhone.</li>"
+        + "<li>Tap <strong>Privacy &amp; Security</strong>, then <strong>Location Services</strong>.</li>"
+        + where + "</ol>"
+        + "<p>Then come back here and tap Try again.</p>";
+    }
+    return "<p><strong>Location Services on the phone</strong></p><ol>"
+      + "<li>Open <strong>Settings</strong> on your iPhone.</li>"
+      + "<li>Tap <strong>Privacy &amp; Security</strong>, then <strong>Location Services</strong>.</li>"
+      + "<li>Turn the switch at the top <strong>on</strong>.</li>"
+      + where + "</ol>"
+      + "<p>Then come back here and tap Try again.</p>";
+  }
+
+  function androidSteps(code){
+    if (code === "denied"){
+      return "<p><strong>Permission for this app</strong></p><ol>"
+        + "<li>Open <strong>Settings</strong>, then <strong>Apps</strong>.</li>"
+        + "<li>Find "
+        + (isStandalone ? "<strong>Ability Visit</strong>" : "your browser, <strong>Chrome</strong>")
+        + ", then <strong>Permissions</strong>, then <strong>Location</strong>.</li>"
+        + "<li>Choose <strong>Allow only while using the app</strong>.</li></ol>"
+        + "<p>Then come back here and tap Try again.</p>";
+    }
+    return "<p><strong>Location on the phone</strong></p><ol>"
+      + "<li>Swipe down from the top of the screen.</li>"
+      + "<li>Turn <strong>Location</strong> on.</li></ol>"
+      + "<p>Then come back here and tap Try again.</p>";
   }
 
   var GEO_TEXT = {
     denied: {
       title: "Location permission is off",
-      msg: "This record cannot be signed without the place it was signed. "
-         + "Turn location back on for this app, then try again.",
-      steps: "<ol><li>Open your phone <strong>Settings</strong>.</li>"
-           + "<li>Find this app, or your browser, under <strong>Location</strong>.</li>"
-           + "<li>Set it to <strong>Allow while using the app</strong>.</li></ol>"
+      msg: "This record cannot be signed without the place it was signed, and this app "
+         + "has been refused permission to read it. It takes two taps to give it back."
     },
     unavailable: {
       title: "Your position could not be found",
-      msg: "Check that Location is switched on for the phone itself, not just for this app.",
-      steps: ""
+      msg: "Location looks switched off on the phone itself, not just for this app."
     },
     timeout: {
       title: "No GPS signal here",
       msg: "There is no usable satellite signal at this spot. Underground, in a parking garage "
          + "or deep inside a building, GPS does not reach. Step outside, or near a window, "
-         + "and try again.",
-      steps: ""
+         + "and try again."
     },
     unsupported: {
       title: "This browser cannot share a location",
-      msg: "Open the visit form in Chrome or Safari.",
-      steps: ""
+      msg: "Open the visit form in Safari or Chrome."
     }
   };
 
@@ -740,11 +793,14 @@
     var t = GEO_TEXT[code] || GEO_TEXT.unavailable;
     $("geoTitle").textContent = t.title;
     $("geoMsg").textContent = t.msg;
-    $("geoSteps").innerHTML = t.steps;
+    // No directions for a lost signal: no setting fixes a basement.
+    $("geoSteps").innerHTML =
+      (code === "timeout" || code === "unsupported") ? ""
+        : (isIos ? iosSteps(code) : androidSteps(code));
     $("ovGeo").classList.add("show");
   }
 
-  function locate(loud, then){
+  function locate(loud, then, maxAge){
     setStrip("wait", "Getting your location…", false);
     fix(function(ok, code){
       if (!ok){
@@ -760,7 +816,7 @@
         setStrip("ok", res ? res.address : "Location captured, address unavailable", false);
         if (then) then(true);
       });
-    });
+    }, maxAge);
   }
 
   $("locFix").addEventListener("click", function(){ locate(true); });
@@ -1116,7 +1172,7 @@
         return;
       }
       send(name, phone, email, reason.value, place.value, duration.value);
-    });
+    }, 30000);
   });
 
   function send(name, phone, email, reason, place, duration){
@@ -1219,7 +1275,45 @@
   }
 
   $("dlBtn").addEventListener("click", function(){ if (lastDoc) lastDoc.save(lastRef + ".pdf"); });
-  $("againBtn").addEventListener("click", function(){ location.reload(); });
+
+  /* Emptying the form by hand instead of reloading the page.
+     A reload is a new session, and on iPhone a new session means Safari asks
+     for the location all over again. Ten patients used to mean ten permission
+     prompts. Now the app is asked once when it opens, and every visit after
+     that is silent. */
+  function resetForm(){
+    ["name","phone","email"].forEach(function(id){ $(id).value = ""; });
+
+    ["reasons","places","durations"].forEach(function(group){
+      var inputs = $(group).querySelectorAll("input");
+      for (var i=0;i<inputs.length;i++) inputs[i].checked = false;
+      var items = $(group).querySelectorAll(".reason, .chip");
+      for (var j=0;j<items.length;j++) items[j].classList.remove("on");
+    });
+
+    photoData = "";
+    $("shotInput").value = "";
+    $("shotPreview").style.display = "none";
+    $("shotPreview").removeAttribute("src");
+    $("shotEmpty").style.display = "block";
+    $("shotBtn").style.display = "inline-flex";
+    $("shotRetake").style.display = "none";
+
+    padPatient.clear();
+    padStaff.clear();
+
+    $("consent").checked = false;
+    clearErr();
+
+    lastDoc = null; lastRef = "";
+    $("ovDone").classList.remove("show");
+    window.scrollTo({top:0, behavior:"instant"});
+
+    // The position is refreshed at the next signature anyway, but showing the
+    // last known one keeps the strip honest between two visits.
+    if (LOC.ok) setStrip("ok", LOC.address || "Location captured", false);
+  }
+  $("againBtn").addEventListener("click", resetForm);
 
   /* ---------------- PWA ---------------- */
   if ("serviceWorker" in navigator){
@@ -1230,10 +1324,6 @@
 
   var deferredPrompt = null;
   var SNOOZE_DAYS = 7;
-  var isStandalone = window.matchMedia("(display-mode: standalone)").matches
-    || window.navigator.standalone === true;
-  var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent)
-    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
   var IOS_STEPS =
     "<p>To add the visit form to this phone's home screen:</p><ol>"
@@ -1290,9 +1380,38 @@
   // Ask who is holding the phone before anything else, but only once ever.
   if (!staff.name) askStaff();
 
-  // Warm the permission up front, so a worker discovers a location problem
-  // while walking to the meeting, not with the patient sitting in front of them.
-  locate(false);
+  /* Ask the browser what it already knows before asking the worker anything.
+     Where the Permissions API answers, a permission already granted goes
+     straight to a silent fix and a permission already refused goes straight to
+     the directions: neither of them pops a pointless request. Safari has not
+     always answered for geolocation, and there the single prompt on launch is
+     the honest cost of a record that must carry a place. */
+  function startLocation(){
+    if (!navigator.permissions || !navigator.permissions.query){
+      locate(false);
+      return;
+    }
+    navigator.permissions.query({name:"geolocation"}).then(function(st){
+      function apply(state){
+        if (state === "denied"){
+          setStrip("bad", "Location is blocked, required to sign", true);
+          showGeoProblem("denied");
+        } else {
+          locate(false);      // granted: silent. prompt: asked once, on launch.
+        }
+      }
+      apply(st.state);
+      // Turned back on in Settings while the app stayed open? Pick it up.
+      st.onchange = function(){ if (st.state !== "denied") locate(false); };
+    }).catch(function(){ locate(false); });
+  }
+  startLocation();
+
+  /* Coming back from Settings is a visibility change, not a reload. Retry then,
+     but only while we still have no position, so this never nags. */
+  document.addEventListener("visibilitychange", function(){
+    if (!document.hidden && !LOC.ok) locate(false);
+  });
 
 })();
 </script>

@@ -9,7 +9,7 @@
  * Submissions are never touched here. They are POSTs, the browser does not
  * cache them, and the page keeps its own retry queue in localStorage.
  */
-var VERSION = "aes-signin-v5";
+var VERSION = "aes-signin-v6";
 var SHELL = [
   "./",
   "./index.html",
