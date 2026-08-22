@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16305C">
+<title>Patients Sign-In &mdash; Ability and Empowerment Services</title>
+<meta name="description" content="Patient sign-in for Ability and Empowerment Services, Baltimore MD. Your information is secured in accordance with HIPAA.">
+<link rel="icon" type="image/png" href="assets/ability-logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ability Sign-In">
+<style>
+  :root{
+    --navy:#16305C; --blue:#1F4E9C; --blue-soft:#EAF0FA;
+    --green:#4FA84C; --green-soft:#EBF6EA;
+    --amber:#B4700F; --amber-soft:#FDF4E3;
+    --red:#BE3A2B; --red-soft:#FCEEEC;
+    --canvas:#F7F9FC; --surface:#FFFFFF; --line:#E3E8EF;
+    --ink:#16305C; --ink-soft:#64748B; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--surface); color:var(--ink);
+    font:16px/1.55 "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased; padding-bottom:env(safe-area-inset-bottom);
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:88vh; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; text-align:center; padding:48px 20px 32px;
+    background:linear-gradient(180deg,#FFFFFF 0%, #F4F7FC 100%);
+  }
+  .hero-brand{display:flex;align-items:center;gap:14px;margin-bottom:34px}
+  .hero-brand img{width:56px;height:56px;border-radius:50%;display:block}
+  .hero-brand span{font-size:27px;font-weight:700;color:var(--navy);letter-spacing:-.4px}
+  .hero h1{
+    margin:0; font-size:clamp(38px,8vw,64px); font-weight:400; letter-spacing:-1.4px;
+    color:#25334D; line-height:1.05;
+  }
+  .hero h1 b{font-weight:700;color:var(--blue)}
+  .hero .hipaa{margin:20px 0 0;font-size:16px;color:var(--ink-soft);max-width:520px}
+  .hero .cta{
+    margin-top:36px; display:inline-flex; align-items:center; gap:10px;
+    padding:15px 30px; border:1.5px solid var(--navy); border-radius:10px;
+    background:transparent; color:var(--navy); font-size:16px; font-weight:600;
+    font-family:inherit; cursor:pointer; text-decoration:none;
+    transition:background .16s, color .16s;
+  }
+  .hero .cta:hover{background:var(--navy);color:#fff}
+  .hero .chev{margin-top:52px;color:#9AA6B8;font-size:26px;line-height:1;animation:bob 1.9s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+
+  /* ---------- form shell ---------- */
+  .wrap{max-width:700px;margin:0 auto;padding:56px 16px 64px}
+  .sec-title{text-align:center;margin:0 0 6px;font-size:clamp(28px,5vw,38px);font-weight:400;letter-spacing:-.8px;color:#25334D}
+  .sec-title b{font-weight:700;color:var(--blue)}
+  .sec-sub{text-align:center;margin:0 0 34px;font-size:15px;color:var(--ink-soft)}
+
+  .card{margin-top:30px}
+  .card-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .step{
+    width:29px;height:29px;border-radius:50%;flex:none;
+    background:var(--navy);color:#fff;font-size:13.5px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .card-head h2{margin:0;font-size:18px;font-weight:600;color:var(--navy)}
+
+  label.field{display:block;margin-bottom:18px}
+  label.field:last-child{margin-bottom:0}
+  .lbl{display:block;font-size:13.5px;font-weight:600;margin-bottom:7px;color:var(--navy)}
+  .req{color:var(--red)}
+  .opt{font-weight:400;color:var(--ink-soft)}
+  input[type=text],input[type=tel],input[type=email]{
+    width:100%;padding:14px 15px;border:1.5px solid var(--line);border-radius:9px;
+    font-size:16px;font-family:inherit;color:var(--ink);background:#fff;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input::placeholder{color:#A9B4C4}
+  input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(31,78,156,.14)}
+  input.bad{border-color:var(--red);background:var(--red-soft)}
+
+  .stamp{
+    margin-top:4px;padding:12px 15px;border:1px dashed var(--line);border-radius:9px;
+    background:var(--canvas);font-size:13.5px;color:var(--ink-soft);
+  }
+  .stamp strong{display:block;margin-top:3px;font-size:15px;color:var(--navy);font-weight:600}
+
+  /* ---------- reason cards ---------- */
+  .reasons{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media (max-width:560px){.reasons{grid-template-columns:1fr}}
+  .reason{
+    position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;
+    padding:20px 12px;border:1.5px solid var(--line);border-radius:11px;background:#fff;
+    cursor:pointer;text-align:center;transition:border-color .15s, background .15s, box-shadow .15s;
+  }
+  .reason input{position:absolute;opacity:0;pointer-events:none}
+  .reason svg{width:26px;height:26px;color:var(--blue);flex:none}
+  .reason .rt{font-size:14px;font-weight:600;color:var(--navy);letter-spacing:.1px}
+  .reason .rs{font-size:12.5px;color:var(--ink-soft)}
+  .reason:hover{border-color:#C3D0E4}
+  .reason.on{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 3px rgba(31,78,156,.1)}
+
+  /* ---------- generic panel ---------- */
+  .panel{
+    border:1.5px solid var(--line);border-radius:11px;background:var(--canvas);
+    padding:18px;text-align:center;
+  }
+  .hint{font-size:13.5px;color:var(--ink-soft);margin:0 0 14px}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    padding:14px 22px;border-radius:9px;border:1.5px solid transparent;
+    font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;
+    transition:filter .15s, background .15s, border-color .15s;
+  }
+  .btn svg{width:18px;height:18px;flex:none}
+  .btn-primary{background:var(--navy);color:#fff;width:100%}
+  .btn-primary:hover{filter:brightness(1.14)}
+  .btn-primary:disabled{opacity:.55;cursor:not-allowed;filter:none}
+  .btn-ghost{background:#fff;color:var(--navy);border-color:var(--line)}
+  .btn-ghost:hover{border-color:#C3D0E4}
+  .btn-lg{padding:17px 24px;font-size:16.5px;width:100%}
+
+  /* ---------- location ---------- */
+  .loc-state{display:flex;align-items:flex-start;gap:11px;text-align:left}
+  .loc-ico{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
+  .loc-ico svg{width:18px;height:18px}
+  .loc-idle .loc-ico{background:var(--blue-soft);color:var(--blue)}
+  .loc-ok   .loc-ico{background:var(--green-soft);color:var(--green)}
+  .loc-warn .loc-ico{background:var(--amber-soft);color:var(--amber)}
+  .loc-err  .loc-ico{background:var(--red-soft);color:var(--red)}
+  .loc-body{flex:1;min-width:0}
+  .loc-title{font-size:14.5px;font-weight:600;color:var(--navy);margin:0 0 3px}
+  .loc-addr{font-size:13.5px;color:var(--ink-soft);margin:0;word-wrap:break-word}
+  .loc-coords{font-size:12.5px;color:#8A96A8;margin:6px 0 0;font-variant-numeric:tabular-nums}
+  .loc-map{display:inline-block;margin-top:8px;font-size:13px;color:var(--blue);font-weight:600;text-decoration:none}
+  .loc-map:hover{text-decoration:underline}
+  .spin{
+    width:16px;height:16px;border:2px solid rgba(31,78,156,.25);border-top-color:var(--blue);
+    border-radius:50%;animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- photo ---------- */
+  .preview{width:100%;max-width:270px;border-radius:11px;display:block;margin:0 auto}
+  .shot-empty{padding:20px 0}
+  .shot-empty svg{width:38px;height:38px;color:#B6C2D4}
+
+  /* ---------- signature ---------- */
+  .sig-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+  .sig-head span{font-size:13.5px;color:var(--ink-soft)}
+  .sig-clear{
+    display:inline-flex;align-items:center;gap:6px;background:none;border:none;
+    font:inherit;font-size:13.5px;font-weight:600;color:var(--blue);cursor:pointer;padding:0;
+  }
+  .sig-clear svg{width:15px;height:15px}
+  .sig-box{position:relative;background:#fff;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
+  #sigPad{display:block;width:100%;height:170px;touch-action:none;cursor:crosshair}
+  .sig-ph{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:#B6C2D4;font-size:14.5px;pointer-events:none;transition:opacity .2s;
+  }
+  .sig-foot{margin:11px 0 0;font-size:12.5px;color:var(--ink-soft);text-align:center}
+
+  /* ---------- consent ---------- */
+  .consent{display:flex;align-items:flex-start;gap:12px;cursor:pointer}
+  .consent input{width:20px;height:20px;flex:none;margin-top:2px;accent-color:var(--navy)}
+  .consent .ctext{font-size:13.5px;color:var(--ink-soft);line-height:1.6}
+  .notice-link{background:none;border:none;padding:0;font:inherit;font-size:13.5px;color:var(--blue);font-weight:600;text-decoration:underline;cursor:pointer}
+
+  .err{
+    display:none;margin-top:16px;padding:13px 15px;border-radius:9px;
+    background:var(--red-soft);border:1px solid #F0CFCA;color:var(--red);
+    font-size:14px;font-weight:600;
+  }
+  .err.show{display:block}
+
+  .foot{margin-top:26px;font-size:12.5px;color:#8A96A8;text-align:center;line-height:1.65}
+
+  /* ---------- overlays ---------- */
+  .overlay{
+    display:none;position:fixed;inset:0;z-index:60;background:rgba(15,26,45,.55);
+    align-items:center;justify-content:center;padding:22px;
+  }
+  .overlay.show{display:flex}
+  .modal{
+    background:#fff;border-radius:16px;padding:32px 26px;max-width:420px;width:100%;
+    text-align:center;box-shadow:0 20px 60px rgba(15,26,45,.3);
+    max-height:88vh;overflow-y:auto;
+  }
+  .modal h3{margin:16px 0 8px;font-size:20px;color:var(--navy)}
+  .modal p{margin:0;font-size:14.5px;color:var(--ink-soft);line-height:1.6}
+  .ring{position:relative;width:82px;height:82px;margin:0 auto}
+  .ring svg{transform:rotate(-90deg)}
+  .count{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:24px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;
+  }
+  .tick{width:64px;height:64px;margin:0 auto;border-radius:50%;background:var(--green-soft);
+        display:flex;align-items:center;justify-content:center}
+  .tick svg{width:31px;height:31px;color:var(--green)}
+  .ref{
+    margin-top:18px;padding:13px;border-radius:9px;background:var(--canvas);
+    border:1px dashed var(--line);
+  }
+  .ref span{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft)}
+  .ref strong{display:block;margin-top:4px;font-size:17px;color:var(--navy);font-variant-numeric:tabular-nums}
+  .notice-body{text-align:left;font-size:13.5px;color:var(--ink-soft);line-height:1.7}
+  .notice-body h4{margin:16px 0 6px;font-size:14px;color:var(--navy)}
+  .notice-body p{text-align:left;font-size:13.5px}
+</style>
+</head>
+<body>
+
+<!-- =================== HERO =================== -->
+<section class="hero">
+  <div class="hero-brand">
+    <img src="assets/ability-logo.png" alt="Ability and Empowerment Services">
+    <span>Abilityempowermenths</span>
+  </div>
+  <h1>Patients <b>Sign-IN</b></h1>
+  <p class="hipaa">Your Information Is Secured In Accordance With HIPAA</p>
+  <a class="cta" href="#start">
+    Get Started
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+  </a>
+  <div class="chev">&darr;</div>
+</section>
+
+<!-- =================== FORM =================== -->
+<div class="wrap" id="start">
+  <h2 class="sec-title">Patient <b>Information</b></h2>
+  <p class="sec-sub">Please complete all required fields below</p>
+
+  <form id="form" novalidate>
+
+    <!-- 1. personal -->
+    <section class="card">
+      <div class="card-head"><div class="step">1</div><h2>Personal Information</h2></div>
+
+      <label class="field">
+        <span class="lbl">Full Name <span class="req">*</span></span>
+        <input type="text" id="name" name="name" autocomplete="name" placeholder="Enter your full name" required>
+      </label>
+
+      <label class="field">
+        <span class="lbl">Phone Number <span class="req">*</span></span>
+        <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="(555) 123-4567" required>
+      </label>
+
+      <label class="field">
+        <span class="lbl">Email Address <span class="opt">(Optional)</span></span>
+        <input type="email" id="email" name="email" autocomplete="email" placeholder="example@email.com">
+      </label>
+
+      <div class="stamp">
+        Date and time of this visit
+        <strong id="stamp">&mdash;</strong>
+      </div>
+    </section>
+
+    <!-- 2. reason -->
+    <section class="card">
+      <div class="card-head"><div class="step">2</div><h2>Reason for Visit</h2></div>
+      <div class="reasons" id="reasons">
+        <label class="reason">
+          <input type="radio" name="reason" value="NEW PATIENT">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+          <span class="rt">NEW PATIENT</span>
+          <span class="rs">First Visit</span>
+        </label>
+        <label class="reason">
+          <input type="radio" name="reason" value="FOLLOW-UP">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="m9 14 2 2 4-4"/></svg>
+          <span class="rt">FOLLOW-UP</span>
+          <span class="rs">Medical Follow-up</span>
+        </label>
+        <label class="reason">
+          <input type="radio" name="reason" value="SESSION WITH PRP">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.5L4.6 18a2 2 0 0 0 1.7 3h11.4a2 2 0 0 0 1.7-3L14 9.5V2"/><path d="M8.5 2h7"/><path d="M7 15h10"/></svg>
+          <span class="rt">SESSION WITH PRP</span>
+          <span class="rs">PRP Treatment</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- 3. signing location -->
+    <section class="card">
+      <div class="card-head"><div class="step">3</div><h2>Signing Location</h2></div>
+      <p class="hint">Required. We record where this form is signed, so the signed record shows the place it was completed.</p>
+      <div class="panel">
+        <div class="loc-state loc-idle" id="locState">
+          <div class="loc-ico" id="locIco">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="loc-body">
+            <p class="loc-title" id="locTitle">Location not shared yet</p>
+            <p class="loc-addr" id="locAddr">Tap the button below and allow location access when your browser asks.</p>
+            <p class="loc-coords" id="locCoords" style="display:none"></p>
+            <a class="loc-map" id="locMap" href="#" target="_blank" rel="noopener" style="display:none">View on Google Maps</a>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" id="locBtn" style="margin-top:15px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M22 12h-3M5 12H2"/><circle cx="12" cy="12" r="8"/></svg>
+          Share my location
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. selfie -->
+    <section class="card">
+      <div class="card-head"><div class="step">4</div><h2>Photo Verification</h2></div>
+      <p class="hint">Please take a photo of yourself so we can verify your identity.</p>
+      <div class="panel">
+        <div id="shotEmpty" class="shot-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <img id="shotPreview" class="preview" alt="Your photo" style="display:none">
+        <label for="shotInput" class="btn btn-primary" style="margin-top:13px" id="shotBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Take Selfie
+        </label>
+        <button type="button" class="btn btn-ghost" id="shotRetake" style="display:none;margin-top:10px">Retake photo</button>
+        <input type="file" id="shotInput" accept="image/*" capture="user" style="display:none">
+      </div>
+    </section>
+
+    <!-- 5. signature -->
+    <section class="card">
+      <div class="card-head"><div class="step">5</div><h2>Electronic Signature</h2></div>
+      <div class="panel" style="text-align:left">
+        <div class="sig-head">
+          <span>Sign in the area below</span>
+          <button type="button" class="sig-clear" id="sigClear">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Clear
+          </button>
+        </div>
+        <div class="sig-box">
+          <canvas id="sigPad"></canvas>
+          <div class="sig-ph" id="sigPh">Sign here with your finger or mouse</div>
+        </div>
+        <p class="sig-foot">By signing, you attest to the accuracy of the information provided</p>
+      </div>
+    </section>
+
+    <!-- 6. consent -->
+    <section class="card">
+      <div class="card-head"><div class="step">6</div><h2>Consent</h2></div>
+      <label class="consent">
+        <input type="checkbox" id="consent">
+        <span class="ctext">
+          I consent to Ability and Empowerment Services collecting and processing the information above,
+          including my photo, my signature and the location where I signed, for the purpose of this visit,
+          handled in accordance with the
+          <button type="button" class="notice-link" id="openNotice">Privacy Notice</button>
+          and the HIPAA Privacy Rule.
+        </span>
+      </label>
+
+      <div class="err" id="err"></div>
+
+      <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" style="margin-top:18px">
+        Validate &amp; Sign
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+      </button>
+    </section>
+  </form>
+
+  <p class="foot">
+    Your personal data is processed in accordance with our privacy policy and applicable regulations.
+    It will never be shared with third parties without your explicit consent.<br>
+    Ability and Empowerment Services &middot; 1 N Charles St, Baltimore, MD 21201 &middot; (443) 438-5538
+  </p>
+</div>
+
+<!-- =================== OVERLAYS =================== -->
+<div class="overlay" id="ovProcess">
+  <div class="modal">
+    <div class="ring">
+      <svg width="82" height="82" viewBox="0 0 82 82">
+        <circle cx="41" cy="41" r="36" fill="none" stroke="#E3E8EF" stroke-width="6"/>
+        <circle id="ringArc" cx="41" cy="41" r="36" fill="none" stroke="#4FA84C" stroke-width="6"
+                stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="0"/>
+      </svg>
+      <div class="count" id="count">60</div>
+    </div>
+    <h3>Filing your signed record</h3>
+    <p id="processMsg">Preparing your signed document. Please keep this page open.</p>
+  </div>
+</div>
+
+<div class="overlay" id="ovDone">
+  <div class="modal">
+    <div class="tick">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+    </div>
+    <h3>You are signed in</h3>
+    <p>Thank you. Please take a seat, a member of our team will be with you shortly.</p>
+    <div class="ref"><span>Reference</span><strong id="refOut">&mdash;</strong></div>
+    <button type="button" class="btn btn-ghost" id="dlBtn" style="margin-top:16px;width:100%">Download my copy (PDF)</button>
+    <button type="button" class="btn btn-primary" id="againBtn" style="margin-top:10px">Sign in another patient</button>
+  </div>
+</div>
+
+<div class="overlay" id="ovNotice">
+  <div class="modal">
+    <h3 style="margin-top:0">Privacy Notice</h3>
+    <div class="notice-body">
+      <h4>What we collect</h4>
+      <p>Your name, phone number, optional email address, the reason for your visit, a photo taken at
+      check-in, your electronic signature, and the geographic location at which you signed this form.</p>
+      <h4>Why we collect the location</h4>
+      <p>The location is recorded once, at the moment you sign, as part of the signed record. It
+      establishes where the form was completed. It is not used to track you, and it is not collected
+      at any other time.</p>
+      <h4>How it is kept</h4>
+      <p>The signed record is stored in the private files of Ability and Empowerment Services and is
+      treated as protected health information under the HIPAA Privacy Rule. It is never sold, and never
+      shared with third parties without your explicit consent.</p>
+      <h4>Your rights</h4>
+      <p>You may ask to see, correct or delete your record at any time by contacting the practice at
+      (443) 438-5538.</p>
+    </div>
+    <button type="button" class="btn btn-primary" id="closeNotice" style="margin-top:18px">Close</button>
+  </div>
+</div>
+
+<script src="vendor/jspdf.umd.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ------------------------------------------------------------------
+     Configuration. Only these lines change if something moves.
+  ------------------------------------------------------------------ */
+  var ENDPOINT = "https://n8n.srv1325858.hstgr.cloud/webhook/ability-signin";
+
+  var CLINIC = {
+    name:  "Ability and Empowerment Services",
+    line1: "1 N Charles St, Baltimore, MD 21201",
+    line2: "(443) 438-5538 - www.abilityempowermenths.com"
+  };
+
+  /* Google reverse geocoding gives the best street address, but the Geocoding
+     API is not enabled on the project yet and a browser key would be public
+     anyway. Left empty, the chain below falls through to the free providers,
+     which need no key. Fill it in and Google is used first, nothing else to do. */
+  var GOOGLE_GEOCODING_KEY = "";
+
+  var COUNTDOWN = 60;          // seconds shown while the document is filed
+  var MIN_WAIT = 1200;         // ms, just enough that the screen cannot flicker
+  var GEO_TIMEOUT = 20000;     // ms to wait for a GPS fix
+  var LOOKUP_TIMEOUT = 7000;   // ms to wait on any one address provider
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------------- date stamp ---------------- */
+  var visitDate = new Date();
+  function stampText(d){
+    return d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"})
+         + " · " + d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+  }
+  function tickStamp(){ visitDate = new Date(); $("stamp").textContent = stampText(visitDate); }
+  tickStamp(); setInterval(tickStamp, 30000);
+
+  /* ---------------- reason ---------------- */
+  $("reasons").addEventListener("change", function(){
+    var labels = $("reasons").querySelectorAll(".reason");
+    for (var i=0;i<labels.length;i++){
+      labels[i].classList.toggle("on", labels[i].querySelector("input").checked);
+    }
+    clearErr();
+  });
+
+  /* ==================================================================
+     SIGNING LOCATION
+     The GPS fix is what makes the record a proof, so it is mandatory.
+     Turning that fix into a street address is a convenience on top, and
+     three providers are tried in turn. If all three are unreachable the
+     sign-in still goes through on the coordinates alone: a patient must
+     never be stuck at the front desk because a map service is down.
+  ================================================================== */
+  var LOC = { ok:false, lat:null, lon:null, accuracy:null,
+              address:"", mapsUrl:"", source:"", at:"" };
+
+  function setLocUi(kind, title, addr){
+    var box = $("locState");
+    box.className = "loc-state loc-" + kind;
+    $("locTitle").textContent = title;
+    $("locAddr").innerHTML = "";
+    if (kind === "idle" && addr === "__spin__"){
+      var s = document.createElement("span");
+      s.className = "spin"; s.style.display = "inline-block"; s.style.verticalAlign = "-3px";
+      $("locAddr").appendChild(s);
+      $("locAddr").appendChild(document.createTextNode(" Getting your position…"));
+    } else {
+      $("locAddr").textContent = addr;
+    }
+  }
+
+  function showCoords(){
+    var c = $("locCoords");
+    c.style.display = "block";
+    c.textContent = LOC.lat.toFixed(6) + ", " + LOC.lon.toFixed(6)
+                  + (LOC.accuracy ? "  (±" + Math.round(LOC.accuracy) + " m)" : "");
+    var m = $("locMap");
+    m.href = LOC.mapsUrl; m.style.display = "inline-block";
+  }
+
+  /* fetch with a deadline, so one slow provider cannot hold the desk up */
+  function getJson(url, done){
+    var settled = false;
+    var timer = setTimeout(function(){ if(!settled){ settled = true; done(null); } }, LOOKUP_TIMEOUT);
+    fetch(url, {headers:{"Accept":"application/json"}})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){ if(!settled){ settled = true; clearTimeout(timer); done(j); } })
+      .catch(function(){ if(!settled){ settled = true; clearTimeout(timer); done(null); } });
+  }
+
+  function lookupGoogle(lat, lon, done){
+    if (!GOOGLE_GEOCODING_KEY) return done(null);
+    getJson("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon
+            + "&key=" + encodeURIComponent(GOOGLE_GEOCODING_KEY), function(j){
+      if (j && j.status === "OK" && j.results && j.results.length)
+        return done({ address: j.results[0].formatted_address, source: "Google" });
+      done(null);
+    });
+  }
+
+  function lookupNominatim(lat, lon, done){
+    getJson("https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" + lat + "&lon=" + lon,
+      function(j){
+        if (j && j.display_name) return done({ address: j.display_name, source: "OpenStreetMap" });
+        done(null);
+      });
+  }
+
+  function lookupBigDataCloud(lat, lon, done){
+    getJson("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + lat
+            + "&longitude=" + lon + "&localityLanguage=en", function(j){
+      if (!j) return done(null);
+      var parts = [j.locality, j.city, j.principalSubdivision, j.countryName].filter(function(v){
+        return v && String(v).trim();
+      });
+      // locality and city are often the same word, so do not print it twice
+      var seen = {}, out = [];
+      parts.forEach(function(p){ if(!seen[p]){ seen[p] = 1; out.push(p); } });
+      if (out.length) return done({ address: out.join(", "), source: "BigDataCloud" });
+      done(null);
+    });
+  }
+
+  function resolveAddress(lat, lon, done){
+    lookupGoogle(lat, lon, function(a){
+      if (a) return done(a);
+      lookupNominatim(lat, lon, function(b){
+        if (b) return done(b);
+        lookupBigDataCloud(lat, lon, function(c){ done(c); });
+      });
+    });
+  }
+
+  $("locBtn").addEventListener("click", function(){
+    if (!navigator.geolocation){
+      setLocUi("err", "Location is not available",
+        "This browser cannot share a location. Please open the form in Chrome or Safari.");
+      return;
+    }
+    $("locBtn").disabled = true;
+    setLocUi("idle", "Locating…", "__spin__");
+
+    navigator.geolocation.getCurrentPosition(function(pos){
+      LOC.lat = pos.coords.latitude;
+      LOC.lon = pos.coords.longitude;
+      LOC.accuracy = pos.coords.accuracy;
+      LOC.mapsUrl = "https://www.google.com/maps/search/?api=1&query="
+                  + LOC.lat.toFixed(6) + "," + LOC.lon.toFixed(6);
+      LOC.at = new Date().toISOString();
+      LOC.ok = true;                       // the fix alone already unlocks submit
+      clearErr();
+
+      setLocUi("idle", "Position captured", "__spin__");
+      showCoords();
+
+      resolveAddress(LOC.lat, LOC.lon, function(res){
+        $("locBtn").disabled = false;
+        $("locBtn").lastChild.nodeValue = " Update my location";
+        if (res){
+          LOC.address = res.address;
+          LOC.source = res.source;
+          setLocUi("ok", "Location confirmed", res.address);
+        } else {
+          LOC.address = "";
+          LOC.source = "coordinates only";
+          setLocUi("warn", "Location captured, address unavailable",
+            "We have your exact coordinates, which is what the record needs. "
+            + "The street address could not be looked up right now.");
+        }
+        showCoords();
+      });
+
+    }, function(err){
+      $("locBtn").disabled = false;
+      LOC.ok = false;
+      var msg = "Something went wrong while locating you. Please try again.";
+      if (err && err.code === 1)
+        msg = "You declined the location request. This form cannot be signed without it. "
+            + "Tap the button again and choose Allow.";
+      else if (err && err.code === 2)
+        msg = "Your position could not be determined. Check that location is switched on "
+            + "for this device, then try again.";
+      else if (err && err.code === 3)
+        msg = "Locating took too long. Please try again, ideally near a window.";
+      setLocUi("err", "Location required", msg);
+    }, { enableHighAccuracy:true, timeout:GEO_TIMEOUT, maximumAge:0 });
+  });
+
+  /* ---------------- photo ---------------- */
+  var photoData = "";
+  $("shotInput").addEventListener("change", function(ev){
+    var file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      shrink(e.target.result, 900, 0.78, function(small){
+        photoData = small;
+        $("shotPreview").src = small;
+        $("shotPreview").style.display = "block";
+        $("shotEmpty").style.display = "none";
+        $("shotBtn").style.display = "none";
+        $("shotRetake").style.display = "inline-flex";
+        clearErr();
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+  $("shotRetake").addEventListener("click", function(){
+    photoData = "";
+    $("shotInput").value = "";
+    $("shotPreview").style.display = "none";
+    $("shotEmpty").style.display = "block";
+    $("shotBtn").style.display = "inline-flex";
+    $("shotRetake").style.display = "none";
+  });
+
+  /* Downscale so a 12 MP phone photo does not become a 6 MB payload. */
+  function shrink(dataUrl, maxSide, quality, done){
+    var img = new Image();
+    img.onload = function(){
+      var w = img.width, h = img.height, s = Math.min(1, maxSide/Math.max(w,h));
+      var c = document.createElement("canvas");
+      c.width = Math.round(w*s); c.height = Math.round(h*s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      done(c.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = function(){ done(dataUrl); };
+    img.src = dataUrl;
+  }
+
+  /* ---------------- signature ---------------- */
+  var pad = $("sigPad"), ctx = pad.getContext("2d");
+  var drawing = false, signed = false, last = null;
+
+  function sizePad(){
+    var keep = signed ? pad.toDataURL("image/png") : null;
+    var ratio = window.devicePixelRatio || 1;
+    var rect = pad.getBoundingClientRect();
+    pad.width  = Math.round(rect.width  * ratio);
+    pad.height = Math.round(rect.height * ratio);
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+    ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.strokeStyle = "#16305C";
+    if (keep){
+      var img = new Image();
+      img.onload = function(){ ctx.drawImage(img,0,0,rect.width,rect.height); };
+      img.src = keep;
+    }
+  }
+  window.addEventListener("resize", sizePad);
+  sizePad();
+
+  function point(e){
+    var r = pad.getBoundingClientRect();
+    var t = (e.touches && e.touches[0]) ? e.touches[0] : e;
+    return { x: t.clientX - r.left, y: t.clientY - r.top };
+  }
+  function start(e){
+    e.preventDefault(); drawing = true; last = point(e);
+    if (!signed){ signed = true; $("sigPh").style.opacity = "0"; clearErr(); }
+  }
+  function move(e){
+    if (!drawing) return;
+    e.preventDefault();
+    var p = point(e);
+    ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+    last = p;
+  }
+  function stop(){ drawing = false; }
+
+  pad.addEventListener("mousedown", start);
+  pad.addEventListener("mousemove", move);
+  window.addEventListener("mouseup", stop);
+  pad.addEventListener("touchstart", start, {passive:false});
+  pad.addEventListener("touchmove",  move,  {passive:false});
+  pad.addEventListener("touchend",   stop);
+
+  $("sigClear").addEventListener("click", function(){
+    ctx.clearRect(0,0,pad.width,pad.height);
+    signed = false; $("sigPh").style.opacity = "1";
+  });
+
+  /* ---------------- privacy notice ---------------- */
+  $("openNotice").addEventListener("click", function(e){
+    e.preventDefault(); $("ovNotice").classList.add("show");
+  });
+  $("closeNotice").addEventListener("click", function(){ $("ovNotice").classList.remove("show"); });
+
+  /* ---------------- errors ---------------- */
+  function showErr(msg, focusId){
+    var box = $("err");
+    box.textContent = msg; box.classList.add("show");
+    if (focusId && $(focusId)){ $(focusId).classList.add("bad"); $(focusId).focus(); }
+    box.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+  function clearErr(){
+    $("err").classList.remove("show");
+    var bad = document.querySelectorAll("input.bad");
+    for (var i=0;i<bad.length;i++) bad[i].classList.remove("bad");
+  }
+  ["name","phone","email"].forEach(function(id){
+    $(id).addEventListener("input", clearErr);
+  });
+  $("consent").addEventListener("change", clearErr);
+
+  /* ---------------- reference ---------------- */
+  function reference(d){
+    var p = function(n){ return (n<10?"0":"") + n; };
+    var rand = Math.floor(Math.random()*9000 + 1000);
+    return "AES-" + d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + "-" + rand;
+  }
+
+  /* ---------------- PDF ---------------- */
+  /* Built here rather than server-side: the patient gets an identical copy,
+     and the clinic's file is the very document that was shown on screen. */
+  function buildPdf(data){
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF({unit:"pt", format:"letter"});
+    var W = doc.internal.pageSize.getWidth();
+    var H = doc.internal.pageSize.getHeight();
+    var M = 56, y = 52;
+
+    try { if (logoData) doc.addImage(logoData, "PNG", M, y, 64, 64); } catch(e){}
+
+    doc.setTextColor(22,48,92);
+    doc.setFont("helvetica","bold"); doc.setFontSize(21);
+    doc.text("Patient Sign-In Record", M + 80, y + 24);
+    doc.setFont("helvetica","normal"); doc.setFontSize(10.5);
+    doc.setTextColor(100,116,139);
+    doc.text(CLINIC.name,  M + 80, y + 42);
+    doc.text(CLINIC.line1, M + 80, y + 56);
+    doc.text(CLINIC.line2, M + 80, y + 70);
+
+    y += 96;
+    doc.setDrawColor(227,232,239); doc.setLineWidth(1);
+    doc.line(M, y, W - M, y);
+    y += 26;
+
+    function row(label, value){
+      doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(100,116,139);
+      doc.text(label.toUpperCase(), M, y);
+      doc.setFont("helvetica","normal"); doc.setFontSize(13); doc.setTextColor(22,48,92);
+      var lines = doc.splitTextToSize(String(value || "—"), W - M*2);
+      doc.text(lines, M, y + 17);
+      y += 23 + lines.length * 16;
+    }
+    row("Patient name", data.name);
+    row("Phone", data.phone);
+    if (data.email) row("Email", data.email);
+    row("Reason for visit", data.reason);
+    row("Date and time of visit", data.stamp);
+    row("Reference", data.reference);
+
+    /* The point of this document: where it was signed. */
+    doc.setFillColor(247,249,252);
+    doc.setDrawColor(227,232,239);
+    var boxTop = y - 6;
+    var addrLines = doc.splitTextToSize(data.locationAddress || "Address could not be resolved", W - M*2 - 24);
+    var boxH = 54 + addrLines.length * 15;
+    doc.roundedRect(M, boxTop, W - M*2, boxH, 6, 6, "FD");
+
+    doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(100,116,139);
+    doc.text("LOCATION WHERE THIS FORM WAS SIGNED", M + 12, boxTop + 19);
+    doc.setFont("helvetica","normal"); doc.setFontSize(12); doc.setTextColor(22,48,92);
+    doc.text(addrLines, M + 12, boxTop + 36);
+    doc.setFontSize(9); doc.setTextColor(130,142,160);
+    doc.text("GPS " + data.locationLat + ", " + data.locationLon
+             + "   accuracy " + data.locationAccuracy
+             + "   captured " + data.stamp,
+             M + 12, boxTop + 36 + addrLines.length * 15 + 6);
+    y = boxTop + boxH + 26;
+
+    // photo + signature side by side
+    var colY = y;
+    doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(100,116,139);
+    doc.text("PHOTO TAKEN AT CHECK-IN", M, colY);
+    doc.text("PATIENT SIGNATURE", M + 250, colY);
+    try { if (data.photo)     doc.addImage(data.photo, "JPEG", M, colY + 10, 150, 150); } catch(e){}
+    try { if (data.signature) doc.addImage(data.signature, "PNG", M + 250, colY + 40, 210, 82); } catch(e){}
+    doc.setDrawColor(227,232,239);
+    doc.line(M + 250, colY + 130, M + 460, colY + 130);
+
+    y = colY + 178;
+    doc.setFont("helvetica","normal"); doc.setFontSize(8.4); doc.setTextColor(100,116,139);
+    var consent =
+      "The patient consented to the collection, use, storage, and processing of their personal and, where " +
+      "applicable, health-related information, including the photograph, the electronic signature and the " +
+      "geographic location recorded above, for the purpose of fulfilling their request made through this " +
+      "form, handled in accordance with the " + CLINIC.name + " Privacy Notice and the HIPAA Privacy Rule. " +
+      "Signed electronically on " + data.stamp + ".";
+    doc.text(doc.splitTextToSize(consent, W - M*2), M, y);
+
+    doc.setFontSize(7.8); doc.setTextColor(150,160,165);
+    doc.text("Confidential - protected health information under HIPAA.", M, H - 40);
+    return doc;
+  }
+
+  /* logo as data URL, so the PDF works offline too */
+  var logoData = "";
+  (function(){
+    var img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = function(){
+      var c = document.createElement("canvas");
+      c.width = img.width; c.height = img.height;
+      c.getContext("2d").drawImage(img,0,0);
+      try { logoData = c.toDataURL("image/png"); } catch(e){ logoData = ""; }
+    };
+    img.src = "assets/ability-logo.png";
+  })();
+
+  /* ---------------- countdown ---------------- */
+  function runCountdown(seconds){
+    var arc = $("ringArc"), total = 226.2, left = seconds;
+    $("count").textContent = left;
+    arc.style.strokeDashoffset = "0";
+    var iv = setInterval(function(){
+      left--;
+      $("count").textContent = left > 0 ? left : 0;
+      arc.style.transition = "stroke-dashoffset .9s linear";
+      arc.style.strokeDashoffset = String(total * (1 - left/seconds));
+      if (left <= 0) clearInterval(iv);
+    }, 1000);
+    return function(){ clearInterval(iv); };
+  }
+
+  /* ---------------- submit ---------------- */
+  var lastDoc = null, lastRef = "", stopCountdown = null;
+
+  $("form").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    clearErr();
+
+    var name  = $("name").value.trim();
+    var phone = $("phone").value.trim();
+    var email = $("email").value.trim();
+    var picked = document.querySelector('input[name="reason"]:checked');
+
+    if (name.length < 2)                    return showErr("Please enter your full name.", "name");
+    if (phone.replace(/\D/g,"").length < 7) return showErr("Please enter a phone number we can reach you on.", "phone");
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+                                            return showErr("That email address does not look right.", "email");
+    if (!picked)                            return showErr("Please tell us the reason for your visit.");
+    if (!LOC.ok){
+      showErr("Please share your location. This form records where it was signed and cannot be submitted without it.");
+      $("locBtn").scrollIntoView({behavior:"smooth", block:"center"});
+      return;
+    }
+    if (!photoData)                         return showErr("Please take a photo to confirm your visit.");
+    if (!signed)                            return showErr("Please sign in the box above.");
+    if (!$("consent").checked)              return showErr("Please give your consent to continue.");
+
+    var now = new Date();
+    // Local date, not UTC: after midnight the two disagree and the sheet would
+    // show yesterday's date against this morning's time.
+    var pad2 = function(n){ return (n<10?"0":"") + n; };
+    var localDate = now.getFullYear() + "-" + pad2(now.getMonth()+1) + "-" + pad2(now.getDate());
+    var localTime = pad2(now.getHours()) + ":" + pad2(now.getMinutes());
+
+    var data = {
+      name: name, phone: phone, email: email,
+      reason: picked.value,
+      stamp: stampText(now),
+      date: localDate,
+      time: localTime,
+      submittedAt: localDate + " " + localTime + ":" + pad2(now.getSeconds()),
+      reference: reference(now),
+      photo: photoData,
+      signature: pad.toDataURL("image/png"),
+      consent: true,
+      privacyNoticeVersion: "2026-08",
+      locationAddress: LOC.address,
+      locationLat: LOC.lat.toFixed(6),
+      locationLon: LOC.lon.toFixed(6),
+      locationAccuracy: LOC.accuracy ? Math.round(LOC.accuracy) + " m" : "unknown",
+      locationMapsUrl: LOC.mapsUrl,
+      locationSource: LOC.source,
+      locationCapturedAt: LOC.at
+    };
+
+    $("submitBtn").disabled = true;
+    $("ovProcess").classList.add("show");
+    stopCountdown = runCountdown(COUNTDOWN);
+
+    // Build the PDF, then send everything in one call.
+    var pdfB64 = "";
+    try {
+      lastDoc = buildPdf(data);
+      pdfB64 = lastDoc.output("datauristring").split(",")[1];
+    } catch(e){
+      lastDoc = null;   // the sign-in still goes through without the PDF
+    }
+    lastRef = data.reference;
+
+    var payload = {
+      name: data.name, phone: data.phone, email: data.email,
+      reason: data.reason, stamp: data.stamp, date: data.date, time: data.time,
+      submittedAt: data.submittedAt, reference: data.reference,
+      consent: true, privacyNoticeVersion: data.privacyNoticeVersion,
+      locationAddress: data.locationAddress,
+      locationLat: data.locationLat,
+      locationLon: data.locationLon,
+      locationAccuracy: data.locationAccuracy,
+      locationMapsUrl: data.locationMapsUrl,
+      locationSource: data.locationSource,
+      locationCapturedAt: data.locationCapturedAt,
+      photo: data.photo, signature: data.signature,
+      pdf: pdfB64,
+      pdfName: data.reference + " - " + data.name + ".pdf"
+    };
+
+    var started = Date.now();
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    })
+    .then(function(res){
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.text();
+    })
+    .then(function(){ finish(started, true); })
+    .catch(function(){
+      // Keep the record locally so the front desk can retry rather than lose it.
+      try {
+        var q = JSON.parse(localStorage.getItem("aes_pending") || "[]");
+        q.push(payload); localStorage.setItem("aes_pending", JSON.stringify(q));
+      } catch(e){}
+      finish(started, false);
+    });
+  });
+
+  /* The countdown is the worst case, not a queue: as soon as the document is
+     filed the patient moves on, with just enough delay that the screen cannot
+     flicker past before they have read it. */
+  function finish(started, ok){
+    var elapsed = Date.now() - started;
+    var wait = Math.max(0, MIN_WAIT - elapsed);
+    setTimeout(function(){
+      if (stopCountdown){ stopCountdown(); stopCountdown = null; }
+      $("ovProcess").classList.remove("show");
+      $("submitBtn").disabled = false;
+      $("refOut").textContent = lastRef;
+      if (!ok){
+        $("ovDone").querySelector("h3").textContent = "Signed in, syncing shortly";
+        $("ovDone").querySelector("p").textContent =
+          "You are checked in. The connection dropped while filing, so please show this " +
+          "reference to the front desk.";
+      }
+      $("dlBtn").style.display = lastDoc ? "inline-flex" : "none";
+      $("ovDone").classList.add("show");
+    }, wait);
+  }
+
+  $("dlBtn").addEventListener("click", function(){
+    if (lastDoc) lastDoc.save(lastRef + ".pdf");
+  });
+  $("againBtn").addEventListener("click", function(){ location.reload(); });
+
+  /* Retry anything the network ate, next time the page is opened online. */
+  (function retryPending(){
+    var q;
+    try { q = JSON.parse(localStorage.getItem("aes_pending") || "[]"); } catch(e){ return; }
+    if (!q.length || !navigator.onLine) return;
+    var rest = [], done = 0;
+    q.forEach(function(item){
+      fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(item)})
+        .then(function(r){ if(!r.ok) rest.push(item); })
+        .catch(function(){ rest.push(item); })
+        .then(function(){
+          if (++done === q.length) localStorage.setItem("aes_pending", JSON.stringify(rest));
+        });
+    });
+  })();
+
+  /* ---------------- PWA ---------------- */
+  if ("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("service-worker.js").catch(function(){});
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
