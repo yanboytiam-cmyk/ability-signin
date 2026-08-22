@@ -1203,16 +1203,25 @@
       locationCapturedAt: LOC.at
     };
 
-    $("submitBtn").disabled = true;
-    $("ovProcess").classList.add("show");
-    stopCountdown = runCountdown(COUNTDOWN);
-
+    /* The PDF is built before anything is shown, because it is the record.
+       It carries the photo and both signatures inside it, and nothing else
+       carries them: if it cannot be made, there is nothing worth filing, and
+       saying so beats quietly storing a visit with no evidence in it. */
     var pdfB64 = "";
     try {
       lastDoc = buildPdf(data);
       pdfB64 = lastDoc.output("datauristring").split(",")[1];
-    } catch(e){ lastDoc = null; }
+    } catch(e){
+      lastDoc = null;
+      showErr("The signed document could not be prepared on this phone. "
+            + "Nothing has been sent. Please try again.");
+      return;
+    }
     lastRef = data.reference;
+
+    $("submitBtn").disabled = true;
+    $("ovProcess").classList.add("show");
+    stopCountdown = runCountdown(COUNTDOWN);
 
     var payload = {
       name: data.name, phone: data.phone, email: data.email,
@@ -1228,9 +1237,9 @@
       locationMapsUrl: data.locationMapsUrl,
       locationSource: data.locationSource,
       locationCapturedAt: data.locationCapturedAt,
-      photo: data.photo,
-      signature: data.sigPatient,            // kept for the existing sheet mapping
-      signatureStaff: data.sigStaff,
+      // The photo and the two signatures are inside the PDF already. Sending
+      // them again would double what a phone has to push over a weak signal
+      // in the field, and leave a second copy of a patient's face on Drive.
       pdf: pdfB64,
       pdfName: data.reference + " - " + data.name + ".pdf"
     };
