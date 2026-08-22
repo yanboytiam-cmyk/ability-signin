@@ -214,6 +214,45 @@
   .notice-body{text-align:left;font-size:13.5px;color:var(--ink-soft);line-height:1.7}
   .notice-body h4{margin:16px 0 6px;font-size:14px;color:var(--navy)}
   .notice-body p{text-align:left;font-size:13.5px}
+
+  /* ---------- install banner ---------- */
+  /* Bottom, not top: it is the first thing the front desk should do, and on a
+     tablet the bottom edge is where the thumb already is. Hidden outright once
+     the app runs standalone, so an installed tablet never sees it again. */
+  .install-bar{
+    display:none; position:fixed; left:0; right:0; z-index:50;
+    bottom:calc(14px + env(safe-area-inset-bottom));
+    margin:0 14px; padding:12px 14px; gap:12px;
+    align-items:center; background:var(--navy); color:#fff;
+    border-radius:13px; box-shadow:0 10px 34px rgba(15,26,45,.34);
+    max-width:560px; margin-left:auto; margin-right:auto;
+  }
+  .install-bar.show{display:flex}
+  /* the bar floats over the page, so give the page somewhere to end that is
+     not underneath it, otherwise it sits on top of Validate & Sign */
+  body.with-install-bar{padding-bottom:104px}
+  .install-bar img{width:36px;height:36px;border-radius:9px;background:#fff;padding:3px;flex:none}
+  .install-bar .ib-text{flex:1;min-width:0;line-height:1.35}
+  .install-bar .ib-title{display:block;font-size:14px;font-weight:650}
+  .install-bar .ib-sub{display:block;font-size:12.5px;color:#B9C6DC}
+  .install-bar .ib-go{
+    flex:none;padding:9px 17px;border:none;border-radius:8px;background:#fff;
+    color:var(--navy);font:inherit;font-size:14px;font-weight:700;cursor:pointer;
+  }
+  .install-bar .ib-go:hover{background:#E7EDF7}
+  .install-bar .ib-x{
+    flex:none;width:30px;height:30px;border:none;border-radius:50%;
+    background:transparent;color:#9FB0CB;font-size:19px;line-height:1;
+    cursor:pointer;padding:0;
+  }
+  .install-bar .ib-x:hover{background:rgba(255,255,255,.12);color:#fff}
+  @media (max-width:420px){
+    .install-bar .ib-sub{display:none}
+  }
+  .steps{text-align:left;color:var(--ink-soft);font-size:14px;line-height:1.75}
+  .steps ol{margin:10px 0 0;padding-left:22px}
+  .steps li{margin-bottom:7px}
+  .steps strong{color:var(--navy)}
 </style>
 </head>
 <body>
@@ -430,6 +469,24 @@
     </div>
     <button type="button" class="btn btn-primary" id="closeNotice" style="margin-top:18px">Close</button>
   </div>
+</div>
+
+<div class="overlay" id="ovInstall">
+  <div class="modal">
+    <h3 style="margin-top:0">Install this app</h3>
+    <div class="steps" id="installSteps"></div>
+    <button type="button" class="btn btn-primary" id="closeInstall" style="margin-top:18px">Got it</button>
+  </div>
+</div>
+
+<div class="install-bar" id="installBar">
+  <img src="icons/icon-192.png" alt="">
+  <span class="ib-text">
+    <span class="ib-title">Install this app</span>
+    <span class="ib-sub">Opens full screen, works without wifi</span>
+  </span>
+  <button type="button" class="ib-go" id="installGo">Install</button>
+  <button type="button" class="ib-x" id="installClose" aria-label="Not now">&times;</button>
 </div>
 
 <script src="vendor/jspdf.umd.min.js"></script>
@@ -1019,6 +1076,89 @@
       navigator.serviceWorker.register("service-worker.js").catch(function(){});
     });
   }
+
+  /* ---------------- install banner ----------------
+     Chrome and Edge hand us the real install prompt, so one tap installs it.
+     Safari never does, so iOS gets the three steps written out instead: the
+     front desk should not have to know that Add to Home Screen is the same
+     thing as installing an app. */
+  var deferredPrompt = null;
+  var SNOOZE_KEY = "aes_install_snoozed";
+  var SNOOZE_DAYS = 7;
+
+  var isStandalone = window.matchMedia("(display-mode: standalone)").matches
+    || window.navigator.standalone === true;
+  var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent)
+    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+  var IOS_STEPS =
+    "<p>To add the patient sign-in to this tablet's home screen:</p><ol>"
+    + "<li>Tap the <strong>Share</strong> button at the bottom of Safari, the square with an arrow pointing up.</li>"
+    + "<li>Scroll down and choose <strong>Add to Home Screen</strong>.</li>"
+    + "<li>Tap <strong>Add</strong>.</li></ol>"
+    + "<p>The sign-in then opens like an app, full screen, with no address bar.</p>";
+  var OTHER_STEPS =
+    "<p>To install the patient sign-in on this device:</p><ol>"
+    + "<li>Open the browser menu, the three dots in the corner.</li>"
+    + "<li>Tap <strong>Install app</strong>, or <strong>Add to Home screen</strong>.</li>"
+    + "<li>Confirm with <strong>Install</strong>.</li></ol>"
+    + "<p>The sign-in then opens like an app, full screen, with no address bar.</p>";
+
+  function snoozed(){
+    try {
+      var until = parseInt(localStorage.getItem(SNOOZE_KEY) || "0", 10);
+      return until > Date.now();
+    } catch(e){ return false; }
+  }
+  function snooze(){
+    try {
+      localStorage.setItem(SNOOZE_KEY, String(Date.now() + SNOOZE_DAYS*86400000));
+    } catch(e){}
+  }
+  function showBar(){
+    if (isStandalone || snoozed()) return;
+    $("installBar").classList.add("show");
+    document.body.classList.add("with-install-bar");
+  }
+  function hideBar(){
+    $("installBar").classList.remove("show");
+    document.body.classList.remove("with-install-bar");
+  }
+
+  window.addEventListener("beforeinstallprompt", function(e){
+    e.preventDefault();      // keep it, so our own button can fire it later
+    deferredPrompt = e;
+    showBar();
+  });
+
+  window.addEventListener("appinstalled", function(){
+    deferredPrompt = null;
+    hideBar();
+  });
+
+  $("installGo").addEventListener("click", function(){
+    if (deferredPrompt){
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(){
+        deferredPrompt = null;
+        hideBar();
+      });
+      return;
+    }
+    $("installSteps").innerHTML = isIos ? IOS_STEPS : OTHER_STEPS;
+    $("ovInstall").classList.add("show");
+  });
+
+  $("installClose").addEventListener("click", function(){ snooze(); hideBar(); });
+  $("closeInstall").addEventListener("click", function(){ $("ovInstall").classList.remove("show"); });
+  $("ovInstall").addEventListener("click", function(e){
+    if (e.target.id === "ovInstall") $("ovInstall").classList.remove("show");
+  });
+
+  // Shown even when the browser never fires beforeinstallprompt, which is every
+  // iPad at the front desk: without this the banner would only ever appear on
+  // Android, and the tablets that most need it would never see it.
+  showBar();
 
 })();
 </script>
