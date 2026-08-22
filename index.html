@@ -526,7 +526,7 @@
 
   function lookupGoogle(lat, lon, done){
     if (!GOOGLE_GEOCODING_KEY) return done(null);
-    getJson("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon
+    getJson("https://maps.googleapis.com/maps/api/geocode/json?language=en&latlng=" + lat + "," + lon
             + "&key=" + encodeURIComponent(GOOGLE_GEOCODING_KEY), function(j){
       if (j && j.status === "OK" && j.results && j.results.length)
         return done({ address: j.results[0].formatted_address, source: "Google" });
@@ -535,7 +535,11 @@
   }
 
   function lookupNominatim(lat, lon, done){
-    getJson("https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" + lat + "&lon=" + lon,
+    // accept-language is pinned: without it Nominatim answers in whatever the
+    // tablet's browser is set to, and a US clinic ended up with a record
+    // reading "Etats-Unis d'Amerique". The record is in English, always.
+    getJson("https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=en"
+            + "&lat=" + lat + "&lon=" + lon,
       function(j){
         if (j && j.display_name) return done({ address: j.display_name, source: "OpenStreetMap" });
         done(null);
