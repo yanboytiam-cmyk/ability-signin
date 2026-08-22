@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#16305C">
-<title>Patients Sign-In &mdash; Ability and Empowerment Services</title>
-<meta name="description" content="Patient sign-in for Ability and Empowerment Services, Baltimore MD. Your information is secured in accordance with HIPAA.">
+<title>Patient Visit &mdash; Ability and Empowerment Services</title>
+<meta name="description" content="Field visit record for Ability and Empowerment Services, Baltimore MD. Your information is secured in accordance with HIPAA.">
 <link rel="icon" type="image/png" href="assets/ability-logo.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Ability Sign-In">
+<meta name="apple-mobile-web-app-title" content="Ability Visit">
 <style>
   :root{
     --navy:#16305C; --blue:#1F4E9C; --blue-soft:#EAF0FA;
@@ -19,59 +19,67 @@
     --amber:#B4700F; --amber-soft:#FDF4E3;
     --red:#BE3A2B; --red-soft:#FCEEEC;
     --canvas:#F7F9FC; --surface:#FFFFFF; --line:#E3E8EF;
-    --ink:#16305C; --ink-soft:#64748B; --radius:14px;
+    --ink:#16305C; --ink-soft:#64748B;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  html{scroll-behavior:smooth}
   body{
     background:var(--surface); color:var(--ink);
     font:16px/1.55 "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing:antialiased; padding-bottom:env(safe-area-inset-bottom);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:env(safe-area-inset-bottom);
   }
 
-  /* ---------- hero ---------- */
-  .hero{
-    min-height:88vh; display:flex; flex-direction:column; align-items:center;
-    justify-content:center; text-align:center; padding:48px 20px 32px;
-    background:linear-gradient(180deg,#FFFFFF 0%, #F4F7FC 100%);
+  /* ---------- masthead ----------
+     No cover screen: the app opens on the form. The banner stays, tight. */
+  .mast{
+    display:flex; align-items:center; gap:11px;
+    padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
+    border-bottom:1px solid var(--line); background:#fff;
+    position:sticky; top:0; z-index:30;
   }
-  .hero-brand{display:flex;align-items:center;gap:14px;margin-bottom:34px}
-  .hero-brand img{width:56px;height:56px;border-radius:50%;display:block}
-  .hero-brand span{font-size:27px;font-weight:700;color:var(--navy);letter-spacing:-.4px}
-  .hero h1{
-    margin:0; font-size:clamp(38px,8vw,64px); font-weight:400; letter-spacing:-1.4px;
-    color:#25334D; line-height:1.05;
+  .mast img{width:38px;height:38px;border-radius:50%;flex:none}
+  .mast .mt{flex:1;min-width:0;line-height:1.25}
+  .mast .m1{display:block;font-size:15.5px;font-weight:700;color:var(--navy);letter-spacing:-.2px}
+  .mast .m2{display:block;font-size:12px;color:var(--ink-soft)}
+
+  /* ---------- status strips ---------- */
+  .strip{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 16px; font-size:13px; border-bottom:1px solid var(--line);
   }
-  .hero h1 b{font-weight:700;color:var(--blue)}
-  .hero .hipaa{margin:20px 0 0;font-size:16px;color:var(--ink-soft);max-width:520px}
-  .hero .cta{
-    margin-top:36px; display:inline-flex; align-items:center; gap:10px;
-    padding:15px 30px; border:1.5px solid var(--navy); border-radius:10px;
-    background:transparent; color:var(--navy); font-size:16px; font-weight:600;
-    font-family:inherit; cursor:pointer; text-decoration:none;
-    transition:background .16s, color .16s;
+  .strip svg{width:16px;height:16px;flex:none}
+  .strip .s-txt{flex:1;min-width:0}
+  .strip .s-act{
+    flex:none;background:none;border:none;padding:0;font:inherit;font-size:13px;
+    font-weight:700;text-decoration:underline;cursor:pointer;color:inherit;
   }
-  .hero .cta:hover{background:var(--navy);color:#fff}
-  .hero .chev{margin-top:52px;color:#9AA6B8;font-size:26px;line-height:1;animation:bob 1.9s ease-in-out infinite}
-  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+  .strip.ok{background:var(--green-soft);color:#2F6B2D}
+  .strip.wait{background:var(--blue-soft);color:var(--blue)}
+  .strip.bad{background:var(--red-soft);color:var(--red)}
+  .strip.queue{background:var(--amber-soft);color:var(--amber)}
+  .strip.staff{background:var(--canvas);color:var(--ink-soft)}
+  .strip.staff b{color:var(--navy)}
+  .strip[hidden]{display:none}
+  .spin{
+    width:15px;height:15px;flex:none;border:2px solid rgba(31,78,156,.25);
+    border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
 
   /* ---------- form shell ---------- */
-  .wrap{max-width:700px;margin:0 auto;padding:56px 16px 64px}
-  .sec-title{text-align:center;margin:0 0 6px;font-size:clamp(28px,5vw,38px);font-weight:400;letter-spacing:-.8px;color:#25334D}
-  .sec-title b{font-weight:700;color:var(--blue)}
-  .sec-sub{text-align:center;margin:0 0 34px;font-size:15px;color:var(--ink-soft)}
-
-  .card{margin-top:30px}
-  .card-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .wrap{max-width:700px;margin:0 auto;padding:22px 16px 48px}
+  .card{margin-top:26px}
+  .card:first-child{margin-top:6px}
+  .card-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
   .step{
-    width:29px;height:29px;border-radius:50%;flex:none;
-    background:var(--navy);color:#fff;font-size:13.5px;font-weight:700;
+    width:28px;height:28px;border-radius:50%;flex:none;
+    background:var(--navy);color:#fff;font-size:13px;font-weight:700;
     display:flex;align-items:center;justify-content:center;
   }
-  .card-head h2{margin:0;font-size:18px;font-weight:600;color:var(--navy)}
+  .card-head h2{margin:0;font-size:17px;font-weight:600;color:var(--navy)}
 
-  label.field{display:block;margin-bottom:18px}
+  label.field{display:block;margin-bottom:16px}
   label.field:last-child{margin-bottom:0}
   .lbl{display:block;font-size:13.5px;font-weight:600;margin-bottom:7px;color:var(--navy)}
   .req{color:var(--red)}
@@ -85,34 +93,37 @@
   input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(31,78,156,.14)}
   input.bad{border-color:var(--red);background:var(--red-soft)}
 
-  .stamp{
-    margin-top:4px;padding:12px 15px;border:1px dashed var(--line);border-radius:9px;
-    background:var(--canvas);font-size:13.5px;color:var(--ink-soft);
-  }
-  .stamp strong{display:block;margin-top:3px;font-size:15px;color:var(--navy);font-weight:600}
+  .sub{font-size:13px;color:var(--ink-soft);margin:0 0 12px}
 
   /* ---------- reason cards ---------- */
-  .reasons{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .reasons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   @media (max-width:560px){.reasons{grid-template-columns:1fr}}
   .reason{
-    position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;
-    padding:20px 12px;border:1.5px solid var(--line);border-radius:11px;background:#fff;
+    position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;
+    padding:17px 10px;border:1.5px solid var(--line);border-radius:11px;background:#fff;
     cursor:pointer;text-align:center;transition:border-color .15s, background .15s, box-shadow .15s;
   }
   .reason input{position:absolute;opacity:0;pointer-events:none}
-  .reason svg{width:26px;height:26px;color:var(--blue);flex:none}
-  .reason .rt{font-size:14px;font-weight:600;color:var(--navy);letter-spacing:.1px}
-  .reason .rs{font-size:12.5px;color:var(--ink-soft)}
-  .reason:hover{border-color:#C3D0E4}
+  .reason svg{width:24px;height:24px;color:var(--blue);flex:none}
+  .reason .rt{font-size:13.5px;font-weight:600;color:var(--navy)}
+  .reason .rs{font-size:12px;color:var(--ink-soft)}
   .reason.on{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 3px rgba(31,78,156,.1)}
 
-  /* ---------- generic panel ---------- */
-  .panel{
-    border:1.5px solid var(--line);border-radius:11px;background:var(--canvas);
-    padding:18px;text-align:center;
+  /* ---------- chips ---------- */
+  .chips{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{
+    position:relative;display:inline-flex;align-items:center;gap:7px;
+    padding:11px 16px;border:1.5px solid var(--line);border-radius:999px;
+    background:#fff;cursor:pointer;font-size:14px;font-weight:600;color:var(--navy);
+    transition:border-color .15s, background .15s, box-shadow .15s;
   }
-  .hint{font-size:13.5px;color:var(--ink-soft);margin:0 0 14px}
+  .chip input{position:absolute;opacity:0;pointer-events:none}
+  .chip svg{width:16px;height:16px;color:var(--blue);flex:none}
+  .chip.on{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 3px rgba(31,78,156,.1)}
+  .chip.on svg{color:var(--blue)}
 
+  /* ---------- panels, buttons ---------- */
+  .panel{border:1.5px solid var(--line);border-radius:11px;background:var(--canvas);padding:16px;text-align:center}
   .btn{
     display:inline-flex;align-items:center;justify-content:center;gap:9px;
     padding:14px 22px;border-radius:9px;border:1.5px solid transparent;
@@ -123,50 +134,29 @@
   .btn-primary{background:var(--navy);color:#fff;width:100%}
   .btn-primary:hover{filter:brightness(1.14)}
   .btn-primary:disabled{opacity:.55;cursor:not-allowed;filter:none}
-  .btn-ghost{background:#fff;color:var(--navy);border-color:var(--line)}
-  .btn-ghost:hover{border-color:#C3D0E4}
+  .btn-ghost{background:#fff;color:var(--navy);border-color:var(--line);width:100%}
   .btn-lg{padding:17px 24px;font-size:16.5px;width:100%}
-
-  /* ---------- location ---------- */
-  .loc-state{display:flex;align-items:flex-start;gap:11px;text-align:left}
-  .loc-ico{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
-  .loc-ico svg{width:18px;height:18px}
-  .loc-idle .loc-ico{background:var(--blue-soft);color:var(--blue)}
-  .loc-ok   .loc-ico{background:var(--green-soft);color:var(--green)}
-  .loc-warn .loc-ico{background:var(--amber-soft);color:var(--amber)}
-  .loc-err  .loc-ico{background:var(--red-soft);color:var(--red)}
-  .loc-body{flex:1;min-width:0}
-  .loc-title{font-size:14.5px;font-weight:600;color:var(--navy);margin:0 0 3px}
-  .loc-addr{font-size:13.5px;color:var(--ink-soft);margin:0;word-wrap:break-word}
-  .loc-coords{font-size:12.5px;color:#8A96A8;margin:6px 0 0;font-variant-numeric:tabular-nums}
-  .loc-map{display:inline-block;margin-top:8px;font-size:13px;color:var(--blue);font-weight:600;text-decoration:none}
-  .loc-map:hover{text-decoration:underline}
-  .spin{
-    width:16px;height:16px;border:2px solid rgba(31,78,156,.25);border-top-color:var(--blue);
-    border-radius:50%;animation:spin .8s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
 
   /* ---------- photo ---------- */
   .preview{width:100%;max-width:270px;border-radius:11px;display:block;margin:0 auto}
-  .shot-empty{padding:20px 0}
-  .shot-empty svg{width:38px;height:38px;color:#B6C2D4}
+  .shot-empty{padding:16px 0}
+  .shot-empty svg{width:36px;height:36px;color:#B6C2D4}
 
-  /* ---------- signature ---------- */
-  .sig-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
-  .sig-head span{font-size:13.5px;color:var(--ink-soft)}
+  /* ---------- signatures ---------- */
+  .sig-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .sig-head span{font-size:13px;color:var(--ink-soft)}
   .sig-clear{
     display:inline-flex;align-items:center;gap:6px;background:none;border:none;
-    font:inherit;font-size:13.5px;font-weight:600;color:var(--blue);cursor:pointer;padding:0;
+    font:inherit;font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;padding:0;
   }
-  .sig-clear svg{width:15px;height:15px}
+  .sig-clear svg{width:14px;height:14px}
   .sig-box{position:relative;background:#fff;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
-  #sigPad{display:block;width:100%;height:170px;touch-action:none;cursor:crosshair}
+  .sig-box canvas{display:block;width:100%;height:150px;touch-action:none;cursor:crosshair}
   .sig-ph{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    color:#B6C2D4;font-size:14.5px;pointer-events:none;transition:opacity .2s;
+    color:#B6C2D4;font-size:14px;pointer-events:none;transition:opacity .2s;
   }
-  .sig-foot{margin:11px 0 0;font-size:12.5px;color:var(--ink-soft);text-align:center}
+  .sig-foot{margin:10px 0 0;font-size:12.5px;color:var(--ink-soft);text-align:center}
 
   /* ---------- consent ---------- */
   .consent{display:flex;align-items:flex-start;gap:12px;cursor:pointer}
@@ -180,8 +170,7 @@
     font-size:14px;font-weight:600;
   }
   .err.show{display:block}
-
-  .foot{margin-top:26px;font-size:12.5px;color:#8A96A8;text-align:center;line-height:1.65}
+  .foot{margin-top:24px;font-size:12.5px;color:#8A96A8;text-align:center;line-height:1.65}
 
   /* ---------- overlays ---------- */
   .overlay{
@@ -190,46 +179,44 @@
   }
   .overlay.show{display:flex}
   .modal{
-    background:#fff;border-radius:16px;padding:32px 26px;max-width:420px;width:100%;
+    background:#fff;border-radius:16px;padding:30px 24px;max-width:430px;width:100%;
     text-align:center;box-shadow:0 20px 60px rgba(15,26,45,.3);
     max-height:88vh;overflow-y:auto;
   }
   .modal h3{margin:16px 0 8px;font-size:20px;color:var(--navy)}
   .modal p{margin:0;font-size:14.5px;color:var(--ink-soft);line-height:1.6}
+  .modal .field{text-align:left;margin-top:16px}
   .ring{position:relative;width:82px;height:82px;margin:0 auto}
   .ring svg{transform:rotate(-90deg)}
   .count{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     font-size:24px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;
   }
-  .tick{width:64px;height:64px;margin:0 auto;border-radius:50%;background:var(--green-soft);
+  .tick{width:62px;height:62px;margin:0 auto;border-radius:50%;background:var(--green-soft);
         display:flex;align-items:center;justify-content:center}
-  .tick svg{width:31px;height:31px;color:var(--green)}
-  .ref{
-    margin-top:18px;padding:13px;border-radius:9px;background:var(--canvas);
-    border:1px dashed var(--line);
-  }
+  .tick svg{width:30px;height:30px;color:var(--green)}
+  .pin{width:62px;height:62px;margin:0 auto;border-radius:50%;background:var(--red-soft);
+       display:flex;align-items:center;justify-content:center}
+  .pin svg{width:29px;height:29px;color:var(--red)}
+  .ref{margin-top:18px;padding:13px;border-radius:9px;background:var(--canvas);border:1px dashed var(--line)}
   .ref span{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft)}
   .ref strong{display:block;margin-top:4px;font-size:17px;color:var(--navy);font-variant-numeric:tabular-nums}
-  .notice-body{text-align:left;font-size:13.5px;color:var(--ink-soft);line-height:1.7}
+  .notice-body,.steps{text-align:left;font-size:13.5px;color:var(--ink-soft);line-height:1.7}
   .notice-body h4{margin:16px 0 6px;font-size:14px;color:var(--navy)}
-  .notice-body p{text-align:left;font-size:13.5px}
+  .notice-body p,.steps p{text-align:left;font-size:13.5px}
+  .steps ol{margin:10px 0 0;padding-left:22px}
+  .steps li{margin-bottom:7px}
+  .steps strong{color:var(--navy)}
 
   /* ---------- install banner ---------- */
-  /* Bottom, not top: it is the first thing the front desk should do, and on a
-     tablet the bottom edge is where the thumb already is. Hidden outright once
-     the app runs standalone, so an installed tablet never sees it again. */
   .install-bar{
     display:none; position:fixed; left:0; right:0; z-index:50;
     bottom:calc(14px + env(safe-area-inset-bottom));
-    margin:0 14px; padding:12px 14px; gap:12px;
+    margin:0 auto; padding:12px 14px; gap:12px; width:calc(100% - 28px);
     align-items:center; background:var(--navy); color:#fff;
-    border-radius:13px; box-shadow:0 10px 34px rgba(15,26,45,.34);
-    max-width:560px; margin-left:auto; margin-right:auto;
+    border-radius:13px; box-shadow:0 10px 34px rgba(15,26,45,.34); max-width:560px;
   }
   .install-bar.show{display:flex}
-  /* the bar floats over the page, so give the page somewhere to end that is
-     not underneath it, otherwise it sits on top of Validate & Sign */
   body.with-install-bar{padding-bottom:104px}
   .install-bar img{width:36px;height:36px;border-radius:9px;background:#fff;padding:3px;flex:none}
   .install-bar .ib-text{flex:1;min-width:0;line-height:1.35}
@@ -239,53 +226,54 @@
     flex:none;padding:9px 17px;border:none;border-radius:8px;background:#fff;
     color:var(--navy);font:inherit;font-size:14px;font-weight:700;cursor:pointer;
   }
-  .install-bar .ib-go:hover{background:#E7EDF7}
   .install-bar .ib-x{
     flex:none;width:30px;height:30px;border:none;border-radius:50%;
-    background:transparent;color:#9FB0CB;font-size:19px;line-height:1;
-    cursor:pointer;padding:0;
+    background:transparent;color:#9FB0CB;font-size:19px;line-height:1;cursor:pointer;padding:0;
   }
-  .install-bar .ib-x:hover{background:rgba(255,255,255,.12);color:#fff}
-  @media (max-width:420px){
-    .install-bar .ib-sub{display:none}
-  }
-  .steps{text-align:left;color:var(--ink-soft);font-size:14px;line-height:1.75}
-  .steps ol{margin:10px 0 0;padding-left:22px}
-  .steps li{margin-bottom:7px}
-  .steps strong{color:var(--navy)}
+  @media (max-width:420px){ .install-bar .ib-sub{display:none} }
 </style>
 </head>
 <body>
 
-<!-- =================== HERO =================== -->
-<section class="hero">
-  <div class="hero-brand">
-    <img src="assets/ability-logo.png" alt="Ability and Empowerment Services">
-    <span>Abilityempowermenths</span>
-  </div>
-  <h1>Patients <b>Sign-IN</b></h1>
-  <p class="hipaa">Your Information Is Secured In Accordance With HIPAA</p>
-  <a class="cta" href="#start">
-    Get Started
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-  </a>
-  <div class="chev">&darr;</div>
-</section>
+<!-- =================== MASTHEAD =================== -->
+<header class="mast">
+  <img src="assets/ability-logo.png" alt="Ability and Empowerment Services">
+  <span class="mt">
+    <span class="m1">Abilityempowermenths</span>
+    <span class="m2">Patient Visit Record &middot; secured in accordance with HIPAA</span>
+  </span>
+</header>
+
+<!-- location, staff and offline strips -->
+<div class="strip wait" id="locStrip">
+  <span class="spin" id="locSpin"></span>
+  <span class="s-txt" id="locTxt">Getting your location&hellip;</span>
+  <button type="button" class="s-act" id="locFix" hidden>Fix</button>
+</div>
+
+<div class="strip staff" id="staffStrip" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  <span class="s-txt">Staff member: <b id="staffWho">&mdash;</b></span>
+  <button type="button" class="s-act" id="staffChange">Change</button>
+</div>
+
+<div class="strip queue" id="queueStrip" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5l3 2"/><circle cx="12" cy="12" r="9"/></svg>
+  <span class="s-txt" id="queueTxt">&mdash;</span>
+  <button type="button" class="s-act" id="queueSend">Send now</button>
+</div>
 
 <!-- =================== FORM =================== -->
-<div class="wrap" id="start">
-  <h2 class="sec-title">Patient <b>Information</b></h2>
-  <p class="sec-sub">Please complete all required fields below</p>
-
+<div class="wrap">
   <form id="form" novalidate>
 
-    <!-- 1. personal -->
+    <!-- 1. patient -->
     <section class="card">
-      <div class="card-head"><div class="step">1</div><h2>Personal Information</h2></div>
+      <div class="card-head"><div class="step">1</div><h2>Patient</h2></div>
 
       <label class="field">
         <span class="lbl">Full Name <span class="req">*</span></span>
-        <input type="text" id="name" name="name" autocomplete="name" placeholder="Enter your full name" required>
+        <input type="text" id="name" name="name" autocomplete="name" placeholder="Enter the patient's full name" required>
       </label>
 
       <label class="field">
@@ -297,11 +285,6 @@
         <span class="lbl">Email Address <span class="opt">(Optional)</span></span>
         <input type="email" id="email" name="email" autocomplete="email" placeholder="example@email.com">
       </label>
-
-      <div class="stamp">
-        Date and time of this visit
-        <strong id="stamp">&mdash;</strong>
-      </div>
     </section>
 
     <!-- 2. reason -->
@@ -329,75 +312,109 @@
       </div>
     </section>
 
-    <!-- 3. signing location -->
+    <!-- 3. meeting -->
     <section class="card">
-      <div class="card-head"><div class="step">3</div><h2>Signing Location</h2></div>
-      <p class="hint">Required. We record where this form is signed, so the signed record shows the place it was completed.</p>
-      <div class="panel">
-        <div class="loc-state loc-idle" id="locState">
-          <div class="loc-ico" id="locIco">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-          <div class="loc-body">
-            <p class="loc-title" id="locTitle">Location not shared yet</p>
-            <p class="loc-addr" id="locAddr">Tap the button below and allow location access when your browser asks.</p>
-            <p class="loc-coords" id="locCoords" style="display:none"></p>
-            <a class="loc-map" id="locMap" href="#" target="_blank" rel="noopener" style="display:none">View on Google Maps</a>
-          </div>
-        </div>
-        <button type="button" class="btn btn-primary" id="locBtn" style="margin-top:15px">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M22 12h-3M5 12H2"/><circle cx="12" cy="12" r="8"/></svg>
-          Share my location
-        </button>
+      <div class="card-head"><div class="step">3</div><h2>The Meeting</h2></div>
+
+      <p class="lbl">Where did the meeting take place? <span class="req">*</span></p>
+      <div class="chips" id="places">
+        <label class="chip"><input type="radio" name="place" value="Patient's home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          Patient's home</label>
+        <label class="chip"><input type="radio" name="place" value="Public place">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg>
+          Public place</label>
+        <label class="chip"><input type="radio" name="place" value="Cafe or restaurant">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a3 3 0 0 1 0 6h-1"/><path d="M3 8h14v6a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5z"/><path d="M6 2v3M10 2v3M14 2v3"/></svg>
+          Cafe or restaurant</label>
+        <label class="chip"><input type="radio" name="place" value="Healthcare facility">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M12 9v6M9 12h6"/></svg>
+          Healthcare facility</label>
+        <label class="chip"><input type="radio" name="place" value="Transport">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="13" rx="2"/><path d="M4 11h16M8 20l-1.5 2M16 20l1.5 2"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg>
+          Transport</label>
+        <label class="chip"><input type="radio" name="place" value="Other">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>
+          Other</label>
       </div>
+
+      <p class="lbl" style="margin-top:20px">How long did it last? <span class="req">*</span></p>
+      <div class="chips" id="durations">
+        <label class="chip"><input type="radio" name="duration" value="30 minutes">30 minutes</label>
+        <label class="chip"><input type="radio" name="duration" value="1 hour">1 hour</label>
+        <label class="chip"><input type="radio" name="duration" value="1 hour 30">1 hour 30</label>
+        <label class="chip"><input type="radio" name="duration" value="2 hours">2 hours</label>
+      </div>
+      <p class="sub" style="margin-top:14px">
+        The meeting is timed as ending the moment this record is signed.
+      </p>
     </section>
 
-    <!-- 4. selfie -->
+    <!-- 4. photo -->
     <section class="card">
-      <div class="card-head"><div class="step">4</div><h2>Photo Verification</h2></div>
-      <p class="hint">Please take a photo of yourself so we can verify your identity.</p>
+      <div class="card-head"><div class="step">4</div><h2>Photo Together</h2></div>
+      <p class="sub">One photo of the patient and the staff member together, taken at the meeting.</p>
       <div class="panel">
         <div id="shotEmpty" class="shot-empty">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         </div>
-        <img id="shotPreview" class="preview" alt="Your photo" style="display:none">
-        <label for="shotInput" class="btn btn-primary" style="margin-top:13px" id="shotBtn">
+        <img id="shotPreview" class="preview" alt="Photo of the meeting" style="display:none">
+        <label for="shotInput" class="btn btn-primary" style="margin-top:12px" id="shotBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          Take Selfie
+          Take the photo
         </label>
         <button type="button" class="btn btn-ghost" id="shotRetake" style="display:none;margin-top:10px">Retake photo</button>
         <input type="file" id="shotInput" accept="image/*" capture="user" style="display:none">
       </div>
     </section>
 
-    <!-- 5. signature -->
+    <!-- 5. patient signature -->
     <section class="card">
-      <div class="card-head"><div class="step">5</div><h2>Electronic Signature</h2></div>
+      <div class="card-head"><div class="step">5</div><h2>Patient Signature</h2></div>
       <div class="panel" style="text-align:left">
         <div class="sig-head">
-          <span>Sign in the area below</span>
-          <button type="button" class="sig-clear" id="sigClear">
+          <span>The patient signs below</span>
+          <button type="button" class="sig-clear" data-clear="sigPatient">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
             Clear
           </button>
         </div>
         <div class="sig-box">
-          <canvas id="sigPad"></canvas>
-          <div class="sig-ph" id="sigPh">Sign here with your finger or mouse</div>
+          <canvas id="sigPatient"></canvas>
+          <div class="sig-ph" data-ph="sigPatient">Sign here with your finger</div>
         </div>
-        <p class="sig-foot">By signing, you attest to the accuracy of the information provided</p>
+        <p class="sig-foot">By signing, the patient attests to the accuracy of the information provided</p>
       </div>
     </section>
 
-    <!-- 6. consent -->
+    <!-- 6. staff signature -->
     <section class="card">
-      <div class="card-head"><div class="step">6</div><h2>Consent</h2></div>
+      <div class="card-head"><div class="step">6</div><h2>Staff Signature</h2></div>
+      <div class="panel" style="text-align:left">
+        <div class="sig-head">
+          <span id="sigStaffWho">The staff member signs below</span>
+          <button type="button" class="sig-clear" data-clear="sigStaff">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Clear
+          </button>
+        </div>
+        <div class="sig-box">
+          <canvas id="sigStaff"></canvas>
+          <div class="sig-ph" data-ph="sigStaff">Sign here with your finger</div>
+        </div>
+        <p class="sig-foot">The staff member attests to having met this patient in person</p>
+      </div>
+    </section>
+
+    <!-- 7. consent -->
+    <section class="card">
+      <div class="card-head"><div class="step">7</div><h2>Consent</h2></div>
       <label class="consent">
         <input type="checkbox" id="consent">
         <span class="ctext">
-          I consent to Ability and Empowerment Services collecting and processing the information above,
-          including my photo, my signature and the location where I signed, for the purpose of this visit,
-          handled in accordance with the
+          The patient consents to Ability and Empowerment Services collecting and processing the
+          information above, including the photograph, the signatures and the location where this
+          record was signed, for the purpose of this visit, handled in accordance with the
           <button type="button" class="notice-link" id="openNotice">Privacy Notice</button>
           and the HIPAA Privacy Rule.
         </span>
@@ -413,13 +430,43 @@
   </form>
 
   <p class="foot">
-    Your personal data is processed in accordance with our privacy policy and applicable regulations.
-    It will never be shared with third parties without your explicit consent.<br>
+    Personal data is processed in accordance with our privacy policy and applicable regulations.
+    It will never be shared with third parties without explicit consent.<br>
     Ability and Empowerment Services &middot; 1 N Charles St, Baltimore, MD 21201 &middot; (443) 438-5538
   </p>
 </div>
 
 <!-- =================== OVERLAYS =================== -->
+<div class="overlay" id="ovStaff">
+  <div class="modal">
+    <h3 style="margin-top:0">Who is using this phone?</h3>
+    <p>Fill this in once. It is kept on this device and filled in for you at every visit.</p>
+    <label class="field">
+      <span class="lbl">Your full name <span class="req">*</span></span>
+      <input type="text" id="staffName" autocomplete="name" placeholder="Your first and last name">
+    </label>
+    <label class="field">
+      <span class="lbl">Your phone number <span class="req">*</span></span>
+      <input type="tel" id="staffPhone" autocomplete="tel" placeholder="(555) 123-4567">
+    </label>
+    <div class="err" id="staffErr"></div>
+    <button type="button" class="btn btn-primary" id="staffSave" style="margin-top:16px">Save on this phone</button>
+  </div>
+</div>
+
+<div class="overlay" id="ovGeo">
+  <div class="modal">
+    <div class="pin">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+    </div>
+    <h3 id="geoTitle">Location is required</h3>
+    <p id="geoMsg"></p>
+    <div class="steps" id="geoSteps" style="margin-top:14px"></div>
+    <button type="button" class="btn btn-primary" id="geoRetry" style="margin-top:18px">Try again</button>
+    <button type="button" class="btn btn-ghost" id="geoClose" style="margin-top:10px">Close</button>
+  </div>
+</div>
+
 <div class="overlay" id="ovProcess">
   <div class="modal">
     <div class="ring">
@@ -430,8 +477,8 @@
       </svg>
       <div class="count" id="count">60</div>
     </div>
-    <h3>Filing your signed record</h3>
-    <p id="processMsg">Preparing your signed document. Please keep this page open.</p>
+    <h3>Filing the signed record</h3>
+    <p id="processMsg">Preparing the signed document. Please keep this page open.</p>
   </div>
 </div>
 
@@ -440,11 +487,11 @@
     <div class="tick">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
     </div>
-    <h3>You are signed in</h3>
-    <p>Thank you. Please take a seat, a member of our team will be with you shortly.</p>
+    <h3 id="doneTitle">Visit recorded</h3>
+    <p id="doneMsg">The signed record has been filed.</p>
     <div class="ref"><span>Reference</span><strong id="refOut">&mdash;</strong></div>
-    <button type="button" class="btn btn-ghost" id="dlBtn" style="margin-top:16px;width:100%">Download my copy (PDF)</button>
-    <button type="button" class="btn btn-primary" id="againBtn" style="margin-top:10px">Sign in another patient</button>
+    <button type="button" class="btn btn-ghost" id="dlBtn" style="margin-top:16px">Download a copy (PDF)</button>
+    <button type="button" class="btn btn-primary" id="againBtn" style="margin-top:10px">Record another visit</button>
   </div>
 </div>
 
@@ -453,16 +500,17 @@
     <h3 style="margin-top:0">Privacy Notice</h3>
     <div class="notice-body">
       <h4>What we collect</h4>
-      <p>Your name, phone number, optional email address, the reason for your visit, a photo taken at
-      check-in, your electronic signature, and the geographic location at which you signed this form.</p>
+      <p>The patient's name, phone number, optional email address, the reason for the visit, where
+      and how long the meeting lasted, a photograph of the patient and the staff member together,
+      both signatures, and the geographic location at which this record was signed.</p>
       <h4>Why we collect the location</h4>
-      <p>The location is recorded once, at the moment you sign, as part of the signed record. It
-      establishes where the form was completed. It is not used to track you, and it is not collected
-      at any other time.</p>
+      <p>The location is recorded once, at the moment of signing, as part of the signed record. It
+      establishes where the meeting took place. It is not used to track anyone, and it is not
+      collected at any other time.</p>
       <h4>How it is kept</h4>
       <p>The signed record is stored in the private files of Ability and Empowerment Services and is
-      treated as protected health information under the HIPAA Privacy Rule. It is never sold, and never
-      shared with third parties without your explicit consent.</p>
+      treated as protected health information under the HIPAA Privacy Rule. It is never sold, and
+      never shared with third parties without explicit consent.</p>
       <h4>Your rights</h4>
       <p>You may ask to see, correct or delete your record at any time by contacting the practice at
       (443) 438-5538.</p>
@@ -483,7 +531,7 @@
   <img src="icons/icon-192.png" alt="">
   <span class="ib-text">
     <span class="ib-title">Install this app</span>
-    <span class="ib-sub">Opens full screen, works without wifi</span>
+    <span class="ib-sub">Opens full screen, remembers you, works without signal</span>
   </span>
   <button type="button" class="ib-go" id="installGo">Install</button>
   <button type="button" class="ib-x" id="installClose" aria-label="Not now">&times;</button>
@@ -511,67 +559,87 @@
      which need no key. Fill it in and Google is used first, nothing else to do. */
   var GOOGLE_GEOCODING_KEY = "";
 
-  var COUNTDOWN = 60;          // seconds shown while the document is filed
-  var MIN_WAIT = 1200;         // ms, just enough that the screen cannot flicker
-  var GEO_TIMEOUT = 20000;     // ms to wait for a GPS fix
+  var COUNTDOWN = 60;
+  var MIN_WAIT = 1200;
+  var GEO_TIMEOUT = 25000;     // ms to wait for a GPS fix
   var LOOKUP_TIMEOUT = 7000;   // ms to wait on any one address provider
 
-  var $ = function(id){ return document.getElementById(id); };
+  var STAFF_KEY = "aes_staff";
+  var QUEUE_KEY = "aes_pending";
+  var SNOOZE_KEY = "aes_install_snoozed";
 
-  /* ---------------- date stamp ---------------- */
-  var visitDate = new Date();
+  var $ = function(id){ return document.getElementById(id); };
+  function pad2(n){ return (n<10?"0":"") + n; }
   function stampText(d){
     return d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"})
          + " · " + d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
   }
-  function tickStamp(){ visitDate = new Date(); $("stamp").textContent = stampText(visitDate); }
-  tickStamp(); setInterval(tickStamp, 30000);
 
-  /* ---------------- reason ---------------- */
-  $("reasons").addEventListener("change", function(){
-    var labels = $("reasons").querySelectorAll(".reason");
-    for (var i=0;i<labels.length;i++){
-      labels[i].classList.toggle("on", labels[i].querySelector("input").checked);
+  /* ==================================================================
+     STAFF IDENTITY, kept on the device
+     The same worker uses the same phone all day. Asking for their name at
+     every visit is how a form gets filled in carelessly.
+  ================================================================== */
+  var staff = { name:"", phone:"" };
+
+  function loadStaff(){
+    try {
+      var raw = localStorage.getItem(STAFF_KEY);
+      if (raw){ var s = JSON.parse(raw); staff.name = s.name || ""; staff.phone = s.phone || ""; }
+    } catch(e){}
+  }
+  function saveStaff(){
+    try { localStorage.setItem(STAFF_KEY, JSON.stringify(staff)); } catch(e){}
+  }
+  function paintStaff(){
+    if (staff.name){
+      $("staffWho").textContent = staff.name;
+      $("staffStrip").hidden = false;
+      $("sigStaffWho").textContent = staff.name + " signs below";
+    } else {
+      $("staffStrip").hidden = true;
+      $("sigStaffWho").textContent = "The staff member signs below";
     }
-    clearErr();
+  }
+  function askStaff(){
+    $("staffName").value = staff.name;
+    $("staffPhone").value = staff.phone;
+    $("staffErr").classList.remove("show");
+    $("ovStaff").classList.add("show");
+    setTimeout(function(){ $("staffName").focus(); }, 120);
+  }
+  $("staffSave").addEventListener("click", function(){
+    var n = $("staffName").value.trim();
+    var p = $("staffPhone").value.trim();
+    if (n.length < 2 || p.replace(/\D/g,"").length < 7){
+      $("staffErr").textContent = "Please enter your name and a phone number we can reach you on.";
+      $("staffErr").classList.add("show");
+      return;
+    }
+    staff.name = n; staff.phone = p;
+    saveStaff(); paintStaff();
+    $("ovStaff").classList.remove("show");
   });
+  $("staffChange").addEventListener("click", askStaff);
 
   /* ==================================================================
      SIGNING LOCATION
-     The GPS fix is what makes the record a proof, so it is mandatory.
-     Turning that fix into a street address is a convenience on top, and
-     three providers are tried in turn. If all three are unreachable the
-     sign-in still goes through on the coordinates alone: a patient must
-     never be stuck at the front desk because a map service is down.
+     No button and no section: the fix is taken on its own, and the only
+     time the worker hears about it is when it is missing. It is required
+     without exception, so a fresh fix is also taken at the moment of
+     signing, which is the moment the record is actually about.
   ================================================================== */
   var LOC = { ok:false, lat:null, lon:null, accuracy:null,
               address:"", mapsUrl:"", source:"", at:"" };
 
-  function setLocUi(kind, title, addr){
-    var box = $("locState");
-    box.className = "loc-state loc-" + kind;
-    $("locTitle").textContent = title;
-    $("locAddr").innerHTML = "";
-    if (kind === "idle" && addr === "__spin__"){
-      var s = document.createElement("span");
-      s.className = "spin"; s.style.display = "inline-block"; s.style.verticalAlign = "-3px";
-      $("locAddr").appendChild(s);
-      $("locAddr").appendChild(document.createTextNode(" Getting your position…"));
-    } else {
-      $("locAddr").textContent = addr;
-    }
+  function setStrip(kind, text, action){
+    var s = $("locStrip");
+    s.className = "strip " + kind;
+    $("locSpin").style.display = (kind === "wait") ? "block" : "none";
+    $("locTxt").textContent = text;
+    $("locFix").hidden = !action;
   }
 
-  function showCoords(){
-    var c = $("locCoords");
-    c.style.display = "block";
-    c.textContent = LOC.lat.toFixed(6) + ", " + LOC.lon.toFixed(6)
-                  + (LOC.accuracy ? "  (±" + Math.round(LOC.accuracy) + " m)" : "");
-    var m = $("locMap");
-    m.href = LOC.mapsUrl; m.style.display = "inline-block";
-  }
-
-  /* fetch with a deadline, so one slow provider cannot hold the desk up */
   function getJson(url, done){
     var settled = false;
     var timer = setTimeout(function(){ if(!settled){ settled = true; done(null); } }, LOOKUP_TIMEOUT);
@@ -580,7 +648,6 @@
       .then(function(j){ if(!settled){ settled = true; clearTimeout(timer); done(j); } })
       .catch(function(){ if(!settled){ settled = true; clearTimeout(timer); done(null); } });
   }
-
   function lookupGoogle(lat, lon, done){
     if (!GOOGLE_GEOCODING_KEY) return done(null);
     getJson("https://maps.googleapis.com/maps/api/geocode/json?language=en&latlng=" + lat + "," + lon
@@ -590,34 +657,28 @@
       done(null);
     });
   }
-
   function lookupNominatim(lat, lon, done){
     // accept-language is pinned: without it Nominatim answers in whatever the
-    // tablet's browser is set to, and a US clinic ended up with a record
-    // reading "Etats-Unis d'Amerique". The record is in English, always.
+    // phone's browser is set to, and a US visit came back reading
+    // "Etats-Unis d'Amerique". The record is in English, always.
     getJson("https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=en"
-            + "&lat=" + lat + "&lon=" + lon,
-      function(j){
-        if (j && j.display_name) return done({ address: j.display_name, source: "OpenStreetMap" });
-        done(null);
-      });
+            + "&lat=" + lat + "&lon=" + lon, function(j){
+      if (j && j.display_name) return done({ address: j.display_name, source: "OpenStreetMap" });
+      done(null);
+    });
   }
-
   function lookupBigDataCloud(lat, lon, done){
     getJson("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + lat
             + "&longitude=" + lon + "&localityLanguage=en", function(j){
       if (!j) return done(null);
-      var parts = [j.locality, j.city, j.principalSubdivision, j.countryName].filter(function(v){
-        return v && String(v).trim();
-      });
-      // locality and city are often the same word, so do not print it twice
       var seen = {}, out = [];
-      parts.forEach(function(p){ if(!seen[p]){ seen[p] = 1; out.push(p); } });
+      [j.locality, j.city, j.principalSubdivision, j.countryName].forEach(function(p){
+        if (p && String(p).trim() && !seen[p]){ seen[p] = 1; out.push(p); }
+      });
       if (out.length) return done({ address: out.join(", "), source: "BigDataCloud" });
       done(null);
     });
   }
-
   function resolveAddress(lat, lon, done){
     lookupGoogle(lat, lon, function(a){
       if (a) return done(a);
@@ -628,15 +689,9 @@
     });
   }
 
-  $("locBtn").addEventListener("click", function(){
-    if (!navigator.geolocation){
-      setLocUi("err", "Location is not available",
-        "This browser cannot share a location. Please open the form in Chrome or Safari.");
-      return;
-    }
-    $("locBtn").disabled = true;
-    setLocUi("idle", "Locating…", "__spin__");
-
+  /* One fix. done(true) or done(false, reasonCode). */
+  function fix(done){
+    if (!navigator.geolocation) return done(false, "unsupported");
     navigator.geolocation.getCurrentPosition(function(pos){
       LOC.lat = pos.coords.latitude;
       LOC.lon = pos.coords.longitude;
@@ -644,44 +699,123 @@
       LOC.mapsUrl = "https://www.google.com/maps/search/?api=1&query="
                   + LOC.lat.toFixed(6) + "," + LOC.lon.toFixed(6);
       LOC.at = new Date().toISOString();
-      LOC.ok = true;                       // the fix alone already unlocks submit
-      clearErr();
-
-      setLocUi("idle", "Position captured", "__spin__");
-      showCoords();
-
-      resolveAddress(LOC.lat, LOC.lon, function(res){
-        $("locBtn").disabled = false;
-        $("locBtn").lastChild.nodeValue = " Update my location";
-        if (res){
-          LOC.address = res.address;
-          LOC.source = res.source;
-          setLocUi("ok", "Location confirmed", res.address);
-        } else {
-          LOC.address = "";
-          LOC.source = "coordinates only";
-          setLocUi("warn", "Location captured, address unavailable",
-            "We have your exact coordinates, which is what the record needs. "
-            + "The street address could not be looked up right now.");
-        }
-        showCoords();
-      });
-
+      LOC.ok = true;
+      done(true);
     }, function(err){
-      $("locBtn").disabled = false;
       LOC.ok = false;
-      var msg = "Something went wrong while locating you. Please try again.";
-      if (err && err.code === 1)
-        msg = "You declined the location request. This form cannot be signed without it. "
-            + "Tap the button again and choose Allow.";
-      else if (err && err.code === 2)
-        msg = "Your position could not be determined. Check that location is switched on "
-            + "for this device, then try again.";
-      else if (err && err.code === 3)
-        msg = "Locating took too long. Please try again, ideally near a window.";
-      setLocUi("err", "Location required", msg);
+      done(false, err && err.code === 1 ? "denied"
+                : err && err.code === 3 ? "timeout" : "unavailable");
     }, { enableHighAccuracy:true, timeout:GEO_TIMEOUT, maximumAge:0 });
+  }
+
+  var GEO_TEXT = {
+    denied: {
+      title: "Location permission is off",
+      msg: "This record cannot be signed without the place it was signed. "
+         + "Turn location back on for this app, then try again.",
+      steps: "<ol><li>Open your phone <strong>Settings</strong>.</li>"
+           + "<li>Find this app, or your browser, under <strong>Location</strong>.</li>"
+           + "<li>Set it to <strong>Allow while using the app</strong>.</li></ol>"
+    },
+    unavailable: {
+      title: "Your position could not be found",
+      msg: "Check that Location is switched on for the phone itself, not just for this app.",
+      steps: ""
+    },
+    timeout: {
+      title: "No GPS signal here",
+      msg: "There is no usable satellite signal at this spot. Underground, in a parking garage "
+         + "or deep inside a building, GPS does not reach. Step outside, or near a window, "
+         + "and try again.",
+      steps: ""
+    },
+    unsupported: {
+      title: "This browser cannot share a location",
+      msg: "Open the visit form in Chrome or Safari.",
+      steps: ""
+    }
+  };
+
+  function showGeoProblem(code){
+    var t = GEO_TEXT[code] || GEO_TEXT.unavailable;
+    $("geoTitle").textContent = t.title;
+    $("geoMsg").textContent = t.msg;
+    $("geoSteps").innerHTML = t.steps;
+    $("ovGeo").classList.add("show");
+  }
+
+  function locate(loud, then){
+    setStrip("wait", "Getting your location…", false);
+    fix(function(ok, code){
+      if (!ok){
+        setStrip("bad", "Location unavailable, required to sign", true);
+        if (loud) showGeoProblem(code);
+        if (then) then(false, code);
+        return;
+      }
+      setStrip("ok", "Location captured", false);
+      resolveAddress(LOC.lat, LOC.lon, function(res){
+        LOC.address = res ? res.address : "";
+        LOC.source  = res ? res.source  : "coordinates only";
+        setStrip("ok", res ? res.address : "Location captured, address unavailable", false);
+        if (then) then(true);
+      });
+    });
+  }
+
+  $("locFix").addEventListener("click", function(){ locate(true); });
+  $("geoRetry").addEventListener("click", function(){
+    $("ovGeo").classList.remove("show");
+    locate(true);
   });
+  $("geoClose").addEventListener("click", function(){ $("ovGeo").classList.remove("show"); });
+
+  /* ==================================================================
+     OFFLINE QUEUE, made visible
+     Field work happens where there is no signal. A queue nobody can see is
+     a queue nobody trusts.
+  ================================================================== */
+  function queue(){
+    try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); } catch(e){ return []; }
+  }
+  function setQueue(q){
+    try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); } catch(e){}
+    paintQueue();
+  }
+  function paintQueue(){
+    var n = queue().length;
+    $("queueStrip").hidden = n === 0;
+    if (n) $("queueTxt").textContent =
+      n === 1 ? "1 visit waiting to be sent" : n + " visits waiting to be sent";
+  }
+  function flushQueue(){
+    var q = queue();
+    if (!q.length || !navigator.onLine) return;
+    var rest = [], done = 0;
+    q.forEach(function(item){
+      fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(item)})
+        .then(function(r){ if(!r.ok) rest.push(item); })
+        .catch(function(){ rest.push(item); })
+        .then(function(){ if (++done === q.length) setQueue(rest); });
+    });
+  }
+  $("queueSend").addEventListener("click", flushQueue);
+  window.addEventListener("online", flushQueue);
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden) flushQueue(); });
+
+  /* ---------------- choices ---------------- */
+  function wireChoices(containerId, cls){
+    $(containerId).addEventListener("change", function(){
+      var items = $(containerId).querySelectorAll("." + cls);
+      for (var i=0;i<items.length;i++){
+        items[i].classList.toggle("on", items[i].querySelector("input").checked);
+      }
+      clearErr();
+    });
+  }
+  wireChoices("reasons", "reason");
+  wireChoices("places", "chip");
+  wireChoices("durations", "chip");
 
   /* ---------------- photo ---------------- */
   var photoData = "";
@@ -725,57 +859,72 @@
     img.src = dataUrl;
   }
 
-  /* ---------------- signature ---------------- */
-  var pad = $("sigPad"), ctx = pad.getContext("2d");
-  var drawing = false, signed = false, last = null;
+  /* ---------------- signature pads ---------------- */
+  function makePad(id){
+    var pad = $(id), ctx = pad.getContext("2d");
+    var ph = document.querySelector('[data-ph="' + id + '"]');
+    var drawing = false, last = null;
+    var api = { signed:false };
 
-  function sizePad(){
-    var keep = signed ? pad.toDataURL("image/png") : null;
-    var ratio = window.devicePixelRatio || 1;
-    var rect = pad.getBoundingClientRect();
-    pad.width  = Math.round(rect.width  * ratio);
-    pad.height = Math.round(rect.height * ratio);
-    ctx.setTransform(ratio,0,0,ratio,0,0);
-    ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
-    ctx.strokeStyle = "#16305C";
-    if (keep){
-      var img = new Image();
-      img.onload = function(){ ctx.drawImage(img,0,0,rect.width,rect.height); };
-      img.src = keep;
+    function size(){
+      var keep = api.signed ? pad.toDataURL("image/png") : null;
+      var ratio = window.devicePixelRatio || 1;
+      var rect = pad.getBoundingClientRect();
+      pad.width  = Math.round(rect.width  * ratio);
+      pad.height = Math.round(rect.height * ratio);
+      ctx.setTransform(ratio,0,0,ratio,0,0);
+      ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.strokeStyle = "#16305C";
+      if (keep){
+        var img = new Image();
+        img.onload = function(){ ctx.drawImage(img,0,0,rect.width,rect.height); };
+        img.src = keep;
+      }
     }
-  }
-  window.addEventListener("resize", sizePad);
-  sizePad();
+    function point(e){
+      var r = pad.getBoundingClientRect();
+      var t = (e.touches && e.touches[0]) ? e.touches[0] : e;
+      return { x: t.clientX - r.left, y: t.clientY - r.top };
+    }
+    function start(e){
+      e.preventDefault(); drawing = true; last = point(e);
+      if (!api.signed){ api.signed = true; ph.style.opacity = "0"; clearErr(); }
+    }
+    function move(e){
+      if (!drawing) return;
+      e.preventDefault();
+      var p = point(e);
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+      last = p;
+    }
+    function stop(){ drawing = false; }
 
-  function point(e){
-    var r = pad.getBoundingClientRect();
-    var t = (e.touches && e.touches[0]) ? e.touches[0] : e;
-    return { x: t.clientX - r.left, y: t.clientY - r.top };
-  }
-  function start(e){
-    e.preventDefault(); drawing = true; last = point(e);
-    if (!signed){ signed = true; $("sigPh").style.opacity = "0"; clearErr(); }
-  }
-  function move(e){
-    if (!drawing) return;
-    e.preventDefault();
-    var p = point(e);
-    ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke();
-    last = p;
-  }
-  function stop(){ drawing = false; }
+    pad.addEventListener("mousedown", start);
+    pad.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", stop);
+    pad.addEventListener("touchstart", start, {passive:false});
+    pad.addEventListener("touchmove",  move,  {passive:false});
+    pad.addEventListener("touchend",   stop);
+    window.addEventListener("resize", size);
+    size();
 
-  pad.addEventListener("mousedown", start);
-  pad.addEventListener("mousemove", move);
-  window.addEventListener("mouseup", stop);
-  pad.addEventListener("touchstart", start, {passive:false});
-  pad.addEventListener("touchmove",  move,  {passive:false});
-  pad.addEventListener("touchend",   stop);
+    api.clear = function(){
+      ctx.clearRect(0,0,pad.width,pad.height);
+      api.signed = false; ph.style.opacity = "1";
+    };
+    api.data = function(){ return pad.toDataURL("image/png"); };
+    return api;
+  }
+  var padPatient = makePad("sigPatient");
+  var padStaff   = makePad("sigStaff");
+  var PADS = { sigPatient: padPatient, sigStaff: padStaff };
 
-  $("sigClear").addEventListener("click", function(){
-    ctx.clearRect(0,0,pad.width,pad.height);
-    signed = false; $("sigPh").style.opacity = "1";
-  });
+  var clears = document.querySelectorAll(".sig-clear");
+  for (var ci=0; ci<clears.length; ci++){
+    clears[ci].addEventListener("click", function(){
+      PADS[this.getAttribute("data-clear")].clear();
+    });
+  }
 
   /* ---------------- privacy notice ---------------- */
   $("openNotice").addEventListener("click", function(e){
@@ -789,6 +938,7 @@
     box.textContent = msg; box.classList.add("show");
     if (focusId && $(focusId)){ $(focusId).classList.add("bad"); $(focusId).focus(); }
     box.scrollIntoView({behavior:"smooth", block:"center"});
+    return false;
   }
   function clearErr(){
     $("err").classList.remove("show");
@@ -802,97 +952,101 @@
 
   /* ---------------- reference ---------------- */
   function reference(d){
-    var p = function(n){ return (n<10?"0":"") + n; };
     var rand = Math.floor(Math.random()*9000 + 1000);
-    return "AES-" + d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + "-" + rand;
+    return "AES-" + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) + "-" + rand;
   }
 
   /* ---------------- PDF ---------------- */
-  /* Built here rather than server-side: the patient gets an identical copy,
-     and the clinic's file is the very document that was shown on screen. */
   function buildPdf(data){
     var jsPDF = window.jspdf.jsPDF;
     var doc = new jsPDF({unit:"pt", format:"letter"});
     var W = doc.internal.pageSize.getWidth();
     var H = doc.internal.pageSize.getHeight();
-    var M = 56, y = 52;
+    var M = 52, COL = 262, y = 48;
 
-    try { if (logoData) doc.addImage(logoData, "PNG", M, y, 64, 64); } catch(e){}
-
+    try { if (logoData) doc.addImage(logoData, "PNG", M, y, 60, 60); } catch(e){}
     doc.setTextColor(22,48,92);
-    doc.setFont("helvetica","bold"); doc.setFontSize(21);
-    doc.text("Patient Sign-In Record", M + 80, y + 24);
-    doc.setFont("helvetica","normal"); doc.setFontSize(10.5);
+    doc.setFont("helvetica","bold"); doc.setFontSize(20);
+    doc.text("Patient Visit Record", M + 74, y + 22);
+    doc.setFont("helvetica","normal"); doc.setFontSize(10);
     doc.setTextColor(100,116,139);
-    doc.text(CLINIC.name,  M + 80, y + 42);
-    doc.text(CLINIC.line1, M + 80, y + 56);
-    doc.text(CLINIC.line2, M + 80, y + 70);
+    doc.text(CLINIC.name,  M + 74, y + 39);
+    doc.text(CLINIC.line1, M + 74, y + 52);
+    doc.text(CLINIC.line2, M + 74, y + 65);
 
-    y += 96;
+    y += 88;
     doc.setDrawColor(227,232,239); doc.setLineWidth(1);
     doc.line(M, y, W - M, y);
-    y += 26;
+    y += 24;
 
-    function row(label, value){
-      doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(100,116,139);
-      doc.text(label.toUpperCase(), M, y);
-      doc.setFont("helvetica","normal"); doc.setFontSize(13); doc.setTextColor(22,48,92);
-      var lines = doc.splitTextToSize(String(value || "—"), W - M*2);
-      doc.text(lines, M, y + 17);
-      y += 23 + lines.length * 16;
+    /* Two columns: with staff, place and duration added, one column per line
+       would push the signatures onto a second page. */
+    function pair(l1, v1, l2, v2){
+      doc.setFont("helvetica","bold"); doc.setFontSize(8.6); doc.setTextColor(100,116,139);
+      doc.text(l1.toUpperCase(), M, y);
+      if (l2) doc.text(l2.toUpperCase(), M + COL, y);
+      doc.setFont("helvetica","normal"); doc.setFontSize(11.5); doc.setTextColor(22,48,92);
+      var a = doc.splitTextToSize(String(v1 || "—"), COL - 16);
+      var b = l2 ? doc.splitTextToSize(String(v2 || "—"), COL - 16) : [""];
+      doc.text(a, M, y + 15);
+      if (l2) doc.text(b, M + COL, y + 15);
+      y += 15 + Math.max(a.length, b.length) * 13 + 12;
     }
-    row("Patient name", data.name);
-    row("Phone", data.phone);
-    if (data.email) row("Email", data.email);
-    row("Reason for visit", data.reason);
-    row("Date and time of visit", data.stamp);
-    row("Reference", data.reference);
+    pair("Patient name", data.name,          "Patient phone", data.phone);
+    pair("Reason for visit", data.reason,    "Email", data.email || "—");
+    pair("Meeting place", data.place,        "Duration", data.duration);
+    pair("Meeting ended", data.stamp,        "Reference", data.reference);
+    pair("Staff member", data.staffName,     "Staff phone", data.staffPhone);
 
     /* The point of this document: where it was signed. */
-    doc.setFillColor(247,249,252);
-    doc.setDrawColor(227,232,239);
-    var boxTop = y - 6;
+    doc.setFillColor(247,249,252); doc.setDrawColor(227,232,239);
+    var boxTop = y - 4;
     var addrLines = doc.splitTextToSize(data.locationAddress || "Address could not be resolved", W - M*2 - 24);
-    var boxH = 54 + addrLines.length * 15;
+    var boxH = 50 + addrLines.length * 14;
     doc.roundedRect(M, boxTop, W - M*2, boxH, 6, 6, "FD");
-
-    doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(100,116,139);
-    doc.text("LOCATION WHERE THIS FORM WAS SIGNED", M + 12, boxTop + 19);
-    doc.setFont("helvetica","normal"); doc.setFontSize(12); doc.setTextColor(22,48,92);
-    doc.text(addrLines, M + 12, boxTop + 36);
-    doc.setFontSize(9); doc.setTextColor(130,142,160);
+    doc.setFont("helvetica","bold"); doc.setFontSize(8.6); doc.setTextColor(100,116,139);
+    doc.text("LOCATION WHERE THIS RECORD WAS SIGNED", M + 12, boxTop + 18);
+    doc.setFont("helvetica","normal"); doc.setFontSize(11.5); doc.setTextColor(22,48,92);
+    doc.text(addrLines, M + 12, boxTop + 34);
+    doc.setFontSize(8.6); doc.setTextColor(130,142,160);
     doc.text("GPS " + data.locationLat + ", " + data.locationLon
-             + "   accuracy " + data.locationAccuracy
-             + "   captured " + data.stamp,
-             M + 12, boxTop + 36 + addrLines.length * 15 + 6);
-    y = boxTop + boxH + 26;
+             + "   accuracy " + data.locationAccuracy + "   captured " + data.stamp,
+             M + 12, boxTop + 34 + addrLines.length * 14 + 6);
+    y = boxTop + boxH + 24;
 
-    // photo + signature side by side
-    var colY = y;
-    doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(100,116,139);
-    doc.text("PHOTO TAKEN AT CHECK-IN", M, colY);
-    doc.text("PATIENT SIGNATURE", M + 250, colY);
-    try { if (data.photo)     doc.addImage(data.photo, "JPEG", M, colY + 10, 150, 150); } catch(e){}
-    try { if (data.signature) doc.addImage(data.signature, "PNG", M + 250, colY + 40, 210, 82); } catch(e){}
+    // photo on the left, the two signatures stacked on the right
+    doc.setFont("helvetica","bold"); doc.setFontSize(8.6); doc.setTextColor(100,116,139);
+    doc.text("PHOTO OF THE PATIENT AND STAFF MEMBER", M, y);
+    try { if (data.photo) doc.addImage(data.photo, "JPEG", M, y + 10, 150, 150); } catch(e){}
+
+    doc.text("PATIENT SIGNATURE", M + COL, y);
+    try { if (data.sigPatient) doc.addImage(data.sigPatient, "PNG", M + COL, y + 12, 180, 56); } catch(e){}
     doc.setDrawColor(227,232,239);
-    doc.line(M + 250, colY + 130, M + 460, colY + 130);
+    doc.line(M + COL, y + 74, M + COL + 180, y + 74);
 
-    y = colY + 178;
-    doc.setFont("helvetica","normal"); doc.setFontSize(8.4); doc.setTextColor(100,116,139);
+    doc.setFont("helvetica","bold"); doc.setFontSize(8.6); doc.setTextColor(100,116,139);
+    doc.text("STAFF SIGNATURE", M + COL, y + 96);
+    try { if (data.sigStaff) doc.addImage(data.sigStaff, "PNG", M + COL, y + 108, 180, 56); } catch(e){}
+    doc.line(M + COL, y + 170, M + COL + 180, y + 170);
+    doc.setFont("helvetica","normal"); doc.setFontSize(8.6); doc.setTextColor(130,142,160);
+    doc.text(data.staffName || "", M + COL, y + 182);
+
+    y = y + 200;
+    doc.setFont("helvetica","normal"); doc.setFontSize(8.2); doc.setTextColor(100,116,139);
     var consent =
       "The patient consented to the collection, use, storage, and processing of their personal and, where " +
-      "applicable, health-related information, including the photograph, the electronic signature and the " +
-      "geographic location recorded above, for the purpose of fulfilling their request made through this " +
-      "form, handled in accordance with the " + CLINIC.name + " Privacy Notice and the HIPAA Privacy Rule. " +
+      "applicable, health-related information, including the photograph, both signatures and the geographic " +
+      "location recorded above, for the purpose of fulfilling their request made through this form, handled " +
+      "in accordance with the " + CLINIC.name + " Privacy Notice and the HIPAA Privacy Rule. The staff member " +
+      "named above attests to having met this patient in person at the location and time recorded. " +
       "Signed electronically on " + data.stamp + ".";
     doc.text(doc.splitTextToSize(consent, W - M*2), M, y);
 
-    doc.setFontSize(7.8); doc.setTextColor(150,160,165);
-    doc.text("Confidential - protected health information under HIPAA.", M, H - 40);
+    doc.setFontSize(7.6); doc.setTextColor(150,160,165);
+    doc.text("Confidential - protected health information under HIPAA.", M, H - 36);
     return doc;
   }
 
-  /* logo as data URL, so the PDF works offline too */
   var logoData = "";
   (function(){
     var img = new Image();
@@ -931,39 +1085,57 @@
     var name  = $("name").value.trim();
     var phone = $("phone").value.trim();
     var email = $("email").value.trim();
-    var picked = document.querySelector('input[name="reason"]:checked');
+    var reason   = document.querySelector('input[name="reason"]:checked');
+    var place    = document.querySelector('input[name="place"]:checked');
+    var duration = document.querySelector('input[name="duration"]:checked');
 
-    if (name.length < 2)                    return showErr("Please enter your full name.", "name");
-    if (phone.replace(/\D/g,"").length < 7) return showErr("Please enter a phone number we can reach you on.", "phone");
+    if (!staff.name || !staff.phone){ askStaff(); return; }
+    if (name.length < 2)                    return showErr("Please enter the patient's full name.", "name");
+    if (phone.replace(/\D/g,"").length < 7) return showErr("Please enter a phone number for the patient.", "phone");
     if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
                                             return showErr("That email address does not look right.", "email");
-    if (!picked)                            return showErr("Please tell us the reason for your visit.");
-    if (!LOC.ok){
-      showErr("Please share your location. This form records where it was signed and cannot be submitted without it.");
-      $("locBtn").scrollIntoView({behavior:"smooth", block:"center"});
-      return;
-    }
-    if (!photoData)                         return showErr("Please take a photo to confirm your visit.");
-    if (!signed)                            return showErr("Please sign in the box above.");
-    if (!$("consent").checked)              return showErr("Please give your consent to continue.");
+    if (!reason)   return showErr("Please tell us the reason for this visit.");
+    if (!place)    return showErr("Please say where the meeting took place.");
+    if (!duration) return showErr("Please say how long the meeting lasted.");
+    if (!photoData)          return showErr("Please take a photo of the patient and yourself together.");
+    if (!padPatient.signed)  return showErr("The patient still has to sign.");
+    if (!padStaff.signed)    return showErr("You still have to sign as the staff member.");
+    if (!$("consent").checked) return showErr("Please confirm the patient's consent to continue.");
 
+    // The location is taken here, at the moment of signing, and it is required
+    // without exception. A record that cannot say where it was signed is not
+    // filed at all.
+    $("submitBtn").disabled = true;
+    setStrip("wait", "Taking the position for the signature…", false);
+
+    locate(false, function(ok, code){
+      $("submitBtn").disabled = false;
+      if (!ok){
+        showGeoProblem(code);
+        showErr("This visit cannot be signed without a location. Move to where there is signal and try again.");
+        return;
+      }
+      send(name, phone, email, reason.value, place.value, duration.value);
+    });
+  });
+
+  function send(name, phone, email, reason, place, duration){
     var now = new Date();
-    // Local date, not UTC: after midnight the two disagree and the sheet would
-    // show yesterday's date against this morning's time.
-    var pad2 = function(n){ return (n<10?"0":"") + n; };
     var localDate = now.getFullYear() + "-" + pad2(now.getMonth()+1) + "-" + pad2(now.getDate());
     var localTime = pad2(now.getHours()) + ":" + pad2(now.getMinutes());
 
     var data = {
       name: name, phone: phone, email: email,
-      reason: picked.value,
+      reason: reason, place: place, duration: duration,
+      staffName: staff.name, staffPhone: staff.phone,
       stamp: stampText(now),
       date: localDate,
-      time: localTime,
+      time: localTime,                       // the meeting ends when this is signed
       submittedAt: localDate + " " + localTime + ":" + pad2(now.getSeconds()),
       reference: reference(now),
       photo: photoData,
-      signature: pad.toDataURL("image/png"),
+      sigPatient: padPatient.data(),
+      sigStaff: padStaff.data(),
       consent: true,
       privacyNoticeVersion: "2026-08",
       locationAddress: LOC.address,
@@ -979,19 +1151,18 @@
     $("ovProcess").classList.add("show");
     stopCountdown = runCountdown(COUNTDOWN);
 
-    // Build the PDF, then send everything in one call.
     var pdfB64 = "";
     try {
       lastDoc = buildPdf(data);
       pdfB64 = lastDoc.output("datauristring").split(",")[1];
-    } catch(e){
-      lastDoc = null;   // the sign-in still goes through without the PDF
-    }
+    } catch(e){ lastDoc = null; }
     lastRef = data.reference;
 
     var payload = {
       name: data.name, phone: data.phone, email: data.email,
-      reason: data.reason, stamp: data.stamp, date: data.date, time: data.time,
+      reason: data.reason, place: data.place, duration: data.duration,
+      staffName: data.staffName, staffPhone: data.staffPhone,
+      stamp: data.stamp, date: data.date, time: data.time,
       submittedAt: data.submittedAt, reference: data.reference,
       consent: true, privacyNoticeVersion: data.privacyNoticeVersion,
       locationAddress: data.locationAddress,
@@ -1001,7 +1172,9 @@
       locationMapsUrl: data.locationMapsUrl,
       locationSource: data.locationSource,
       locationCapturedAt: data.locationCapturedAt,
-      photo: data.photo, signature: data.signature,
+      photo: data.photo,
+      signature: data.sigPatient,            // kept for the existing sheet mapping
+      signatureStaff: data.sigStaff,
       pdf: pdfB64,
       pdfName: data.reference + " - " + data.name + ".pdf"
     };
@@ -1018,57 +1191,35 @@
     })
     .then(function(){ finish(started, true); })
     .catch(function(){
-      // Keep the record locally so the front desk can retry rather than lose it.
-      try {
-        var q = JSON.parse(localStorage.getItem("aes_pending") || "[]");
-        q.push(payload); localStorage.setItem("aes_pending", JSON.stringify(q));
-      } catch(e){}
+      var q = queue(); q.push(payload); setQueue(q);
       finish(started, false);
     });
-  });
+  }
 
-  /* The countdown is the worst case, not a queue: as soon as the document is
-     filed the patient moves on, with just enough delay that the screen cannot
-     flicker past before they have read it. */
   function finish(started, ok){
     var elapsed = Date.now() - started;
-    var wait = Math.max(0, MIN_WAIT - elapsed);
     setTimeout(function(){
       if (stopCountdown){ stopCountdown(); stopCountdown = null; }
       $("ovProcess").classList.remove("show");
       $("submitBtn").disabled = false;
       $("refOut").textContent = lastRef;
-      if (!ok){
-        $("ovDone").querySelector("h3").textContent = "Signed in, syncing shortly";
-        $("ovDone").querySelector("p").textContent =
-          "You are checked in. The connection dropped while filing, so please show this " +
-          "reference to the front desk.";
+      if (ok){
+        $("doneTitle").textContent = "Visit recorded";
+        $("doneMsg").textContent = "The signed record has been filed.";
+      } else {
+        $("doneTitle").textContent = "Saved on this phone";
+        $("doneMsg").textContent =
+          "There is no connection right now. The visit is stored on this phone and will be sent "
+          + "on its own as soon as you have signal.";
       }
       $("dlBtn").style.display = lastDoc ? "inline-flex" : "none";
       $("ovDone").classList.add("show");
-    }, wait);
+      paintQueue();
+    }, Math.max(0, MIN_WAIT - elapsed));
   }
 
-  $("dlBtn").addEventListener("click", function(){
-    if (lastDoc) lastDoc.save(lastRef + ".pdf");
-  });
+  $("dlBtn").addEventListener("click", function(){ if (lastDoc) lastDoc.save(lastRef + ".pdf"); });
   $("againBtn").addEventListener("click", function(){ location.reload(); });
-
-  /* Retry anything the network ate, next time the page is opened online. */
-  (function retryPending(){
-    var q;
-    try { q = JSON.parse(localStorage.getItem("aes_pending") || "[]"); } catch(e){ return; }
-    if (!q.length || !navigator.onLine) return;
-    var rest = [], done = 0;
-    q.forEach(function(item){
-      fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(item)})
-        .then(function(r){ if(!r.ok) rest.push(item); })
-        .catch(function(){ rest.push(item); })
-        .then(function(){
-          if (++done === q.length) localStorage.setItem("aes_pending", JSON.stringify(rest));
-        });
-    });
-  })();
 
   /* ---------------- PWA ---------------- */
   if ("serviceWorker" in navigator){
@@ -1077,43 +1228,29 @@
     });
   }
 
-  /* ---------------- install banner ----------------
-     Chrome and Edge hand us the real install prompt, so one tap installs it.
-     Safari never does, so iOS gets the three steps written out instead: the
-     front desk should not have to know that Add to Home Screen is the same
-     thing as installing an app. */
   var deferredPrompt = null;
-  var SNOOZE_KEY = "aes_install_snoozed";
   var SNOOZE_DAYS = 7;
-
   var isStandalone = window.matchMedia("(display-mode: standalone)").matches
     || window.navigator.standalone === true;
   var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent)
     || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
   var IOS_STEPS =
-    "<p>To add the patient sign-in to this tablet's home screen:</p><ol>"
+    "<p>To add the visit form to this phone's home screen:</p><ol>"
     + "<li>Tap the <strong>Share</strong> button at the bottom of Safari, the square with an arrow pointing up.</li>"
     + "<li>Scroll down and choose <strong>Add to Home Screen</strong>.</li>"
     + "<li>Tap <strong>Add</strong>.</li></ol>"
-    + "<p>The sign-in then opens like an app, full screen, with no address bar.</p>";
+    + "<p>It then opens like an app, full screen, and remembers who you are.</p>";
   var OTHER_STEPS =
-    "<p>To install the patient sign-in on this device:</p><ol>"
+    "<p>To install the visit form on this phone:</p><ol>"
     + "<li>Open the browser menu, the three dots in the corner.</li>"
     + "<li>Tap <strong>Install app</strong>, or <strong>Add to Home screen</strong>.</li>"
     + "<li>Confirm with <strong>Install</strong>.</li></ol>"
-    + "<p>The sign-in then opens like an app, full screen, with no address bar.</p>";
+    + "<p>It then opens like an app, full screen, and remembers who you are.</p>";
 
   function snoozed(){
-    try {
-      var until = parseInt(localStorage.getItem(SNOOZE_KEY) || "0", 10);
-      return until > Date.now();
-    } catch(e){ return false; }
-  }
-  function snooze(){
-    try {
-      localStorage.setItem(SNOOZE_KEY, String(Date.now() + SNOOZE_DAYS*86400000));
-    } catch(e){}
+    try { return parseInt(localStorage.getItem(SNOOZE_KEY) || "0", 10) > Date.now(); }
+    catch(e){ return false; }
   }
   function showBar(){
     if (isStandalone || snoozed()) return;
@@ -1124,41 +1261,38 @@
     $("installBar").classList.remove("show");
     document.body.classList.remove("with-install-bar");
   }
-
   window.addEventListener("beforeinstallprompt", function(e){
-    e.preventDefault();      // keep it, so our own button can fire it later
-    deferredPrompt = e;
-    showBar();
+    e.preventDefault(); deferredPrompt = e; showBar();
   });
-
-  window.addEventListener("appinstalled", function(){
-    deferredPrompt = null;
-    hideBar();
-  });
-
+  window.addEventListener("appinstalled", function(){ deferredPrompt = null; hideBar(); });
   $("installGo").addEventListener("click", function(){
     if (deferredPrompt){
       deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(function(){
-        deferredPrompt = null;
-        hideBar();
-      });
+      deferredPrompt.userChoice.then(function(){ deferredPrompt = null; hideBar(); });
       return;
     }
     $("installSteps").innerHTML = isIos ? IOS_STEPS : OTHER_STEPS;
     $("ovInstall").classList.add("show");
   });
-
-  $("installClose").addEventListener("click", function(){ snooze(); hideBar(); });
-  $("closeInstall").addEventListener("click", function(){ $("ovInstall").classList.remove("show"); });
-  $("ovInstall").addEventListener("click", function(e){
-    if (e.target.id === "ovInstall") $("ovInstall").classList.remove("show");
+  $("installClose").addEventListener("click", function(){
+    try { localStorage.setItem(SNOOZE_KEY, String(Date.now() + SNOOZE_DAYS*86400000)); } catch(e){}
+    hideBar();
   });
+  $("closeInstall").addEventListener("click", function(){ $("ovInstall").classList.remove("show"); });
 
-  // Shown even when the browser never fires beforeinstallprompt, which is every
-  // iPad at the front desk: without this the banner would only ever appear on
-  // Android, and the tablets that most need it would never see it.
+  /* ---------------- start ---------------- */
+  loadStaff();
+  paintStaff();
+  paintQueue();
+  flushQueue();
   showBar();
+
+  // Ask who is holding the phone before anything else, but only once ever.
+  if (!staff.name) askStaff();
+
+  // Warm the permission up front, so a worker discovers a location problem
+  // while walking to the meeting, not with the patient sitting in front of them.
+  locate(false);
 
 })();
 </script>
