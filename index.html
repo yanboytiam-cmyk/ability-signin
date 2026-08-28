@@ -564,6 +564,14 @@
   var GEO_TIMEOUT = 25000;     // ms to wait for a GPS fix
   var LOOKUP_TIMEOUT = 7000;   // ms to wait on any one address provider
 
+  /* How long we wait on the server before we stop waiting and keep the visit
+     on the phone instead. Without this the browser uses its own limit, which
+     is about five minutes: on 2026-08-28 the server was down and the staff
+     sat in front of a spinner for five minutes per patient, then gave up.
+     Twenty seconds is far longer than a healthy send, which takes two. */
+  var SEND_TIMEOUT = 20000;
+  var RETRY_EVERY = 60000;     // ms between two attempts to empty the queue
+
   var STAFF_KEY = "aes_staff";
   var QUEUE_KEY = "aes_pending";
   var SNOOZE_KEY = "aes_install_snoozed";
@@ -827,6 +835,42 @@
   $("geoClose").addEventListener("click", function(){ $("ovGeo").classList.remove("show"); });
 
   /* ==================================================================
+     ONE WAY OUT, WITH A DEADLINE
+     Every send in this page goes through here, so a server that accepts the
+     connection and then never answers cannot hold the staff hostage. Resolves
+     true when the record is filed, false when it is not, and never throws.
+  ================================================================== */
+  function sendVisit(payload){
+    return new Promise(function(resolve){
+      var done = false;
+      var ctrl = ("AbortController" in window) ? new AbortController() : null;
+      var timer = setTimeout(function(){
+        if (done) return;
+        done = true;
+        if (ctrl) { try { ctrl.abort(); } catch(e){} }
+        resolve(false);
+      }, SEND_TIMEOUT);
+      var opts = {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      };
+      if (ctrl) opts.signal = ctrl.signal;
+      fetch(ENDPOINT, opts)
+        .then(function(res){
+          if (done) return;
+          done = true; clearTimeout(timer);
+          resolve(!!res.ok);
+        })
+        .catch(function(){
+          if (done) return;
+          done = true; clearTimeout(timer);
+          resolve(false);
+        });
+    });
+  }
+
+  /* ==================================================================
      OFFLINE QUEUE, made visible
      Field work happens where there is no signal. A queue nobody can see is
      a queue nobody trusts.
@@ -844,20 +888,31 @@
     if (n) $("queueTxt").textContent =
       n === 1 ? "1 visit waiting to be sent" : n + " visits waiting to be sent";
   }
+  var flushing = false;
   function flushQueue(){
     var q = queue();
-    if (!q.length || !navigator.onLine) return;
-    var rest = [], done = 0;
-    q.forEach(function(item){
-      fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(item)})
-        .then(function(r){ if(!r.ok) rest.push(item); })
-        .catch(function(){ rest.push(item); })
-        .then(function(){ if (++done === q.length) setQueue(rest); });
-    });
+    if (!q.length || flushing || !navigator.onLine) return;
+    flushing = true;
+    var rest = [];
+    /* One at a time. In the field the signal is thin and every visit carries
+       a PDF; firing ten at once is how you lose all ten. */
+    (function next(i){
+      if (i >= q.length){ flushing = false; setQueue(rest); return; }
+      sendVisit(q[i]).then(function(ok){
+        if (!ok) rest.push(q[i]);
+        next(i + 1);
+      });
+    })(0);
   }
   $("queueSend").addEventListener("click", flushQueue);
   window.addEventListener("online", flushQueue);
   document.addEventListener("visibilitychange", function(){ if (!document.hidden) flushQueue(); });
+
+  /* Every trigger above waits on something to happen: the phone finds signal
+     again, or somebody opens the page. On 2026-08-28 neither did. The phones
+     never lost signal, the server was down, so the queue sat untouched with
+     five patient records in it. From now on the page also tries by itself. */
+  setInterval(flushQueue, RETRY_EVERY);
 
   /* ---------------- choices ---------------- */
   function wireChoices(containerId, cls){
@@ -1245,19 +1300,9 @@
     };
 
     var started = Date.now();
-    fetch(ENDPOINT, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(payload)
-    })
-    .then(function(res){
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res.text();
-    })
-    .then(function(){ finish(started, true); })
-    .catch(function(){
-      var q = queue(); q.push(payload); setQueue(q);
-      finish(started, false);
+    sendVisit(payload).then(function(ok){
+      if (!ok){ var q = queue(); q.push(payload); setQueue(q); }
+      finish(started, ok);
     });
   }
 
@@ -1272,10 +1317,18 @@
         $("doneTitle").textContent = "Visit recorded";
         $("doneMsg").textContent = "The signed record has been filed.";
       } else {
+        /* Telling the staff "there is no connection" when the phone is online
+           and the office system is down sends them looking for the fault in
+           the wrong place, and makes them think the signature did not take.
+           On 2026-08-28 that is exactly what happened. Say which one it is,
+           and say plainly that the patient does not sign twice. */
         $("doneTitle").textContent = "Saved on this phone";
-        $("doneMsg").textContent =
-          "There is no connection right now. The visit is stored on this phone and will be sent "
-          + "on its own as soon as you have signal.";
+        $("doneMsg").textContent = navigator.onLine
+          ? "The office system is not answering right now. The visit is signed and safe on this "
+            + "phone, and it will be sent on its own as soon as the system answers. Nothing is "
+            + "lost. Do not ask the patient to sign again."
+          : "There is no connection right now. The visit is stored on this phone and will be sent "
+            + "on its own as soon as you have signal.";
       }
       $("dlBtn").style.display = lastDoc ? "inline-flex" : "none";
       $("ovDone").classList.add("show");
