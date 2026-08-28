@@ -568,8 +568,15 @@
      on the phone instead. Without this the browser uses its own limit, which
      is about five minutes: on 2026-08-28 the server was down and the staff
      sat in front of a spinner for five minutes per patient, then gave up.
-     Twenty seconds is far longer than a healthy send, which takes two. */
-  var SEND_TIMEOUT = 20000;
+
+     Sixty seconds, not less. Measured on the last eighteen filings, the
+     median takes 7.9 s and the slowest healthy one took 10.9 s. Cutting at
+     twenty would leave almost no margin if the server merely slows down, and
+     abandoning a filing that then succeeds on the server files the visit
+     twice when the queue resends it. A patient recorded twice is worse than
+     a patient recorded slowly. Sixty is also what the countdown already
+     promises on screen. */
+  var SEND_TIMEOUT = 60000;
   var RETRY_EVERY = 60000;     // ms between two attempts to empty the queue
 
   var STAFF_KEY = "aes_staff";
